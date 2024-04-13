@@ -4,6 +4,9 @@ ETH Computational Intelligence Lab Project
 //TODO: Group Name
 CIL Project 2024
 
+Reproducibility:
+- Remember to comment all the code you write using the standard python PEP 8 way
+
 Project Organization
 ------------
 
