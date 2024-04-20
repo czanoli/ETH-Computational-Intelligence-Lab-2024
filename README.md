@@ -1,19 +1,5 @@
-<style>
-h1 {
-  border-bottom: none;
-}
-h2 {
-  margin-top: 0;
-}
-</style>
-
 # ETH Computational Intelligence Lab Project 2024
-
-<div style="text-align: center;">
-
-# Twitter Text Sentiment Classification
-
-</div>
+## Twitter Text Sentiment Classification
 
 - Group Name: CIL'em All
 - Authors: Christopher Zanoli, Federica Bruni, Francesco Rita, Matteo Boglioni
