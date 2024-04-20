@@ -1,12 +1,27 @@
-ETH Computational Intelligence Lab Project
-==============================
+<style>
+h1 {
+  border-bottom: none;
+}
+h2 {
+  margin-top: 0;
+}
+</style>
 
-//TODO: Group Name
-CIL Project 2024
+# ETH Computational Intelligence Lab Project 2024
 
-Project Organization
-------------
+<div style="text-align: center;">
 
+# Twitter Text Sentiment Classification
+
+</div>
+
+- Group Name: CIL'em All
+- Authors: Christopher Zanoli, Federica Bruni, Francesco Rita, Matteo Boglioni
+
+## 1. Project Description
+The goal of this project is to ... //TODO
+
+## 2. Project Organization
     ├── LICENSE
     ├── Makefile           <- Makefile with commands like `make data` or `make train`
     ├── README.md          <- The top-level README for developers using this project.
@@ -32,27 +47,45 @@ Project Organization
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
     │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+    └── src                <- Source code for use in this project.
+        ├── __init__.py    <- Makes src a Python module
+        │
+        ├── data           <- Scripts to download or generate data
+        │   └── make_dataset.py
+        │
+        ├── features       <- Scripts to turn raw data into features for modeling
+        │   └── build_features.py
+        │
+        ├── models         <- Scripts to train models and then use trained models to make
+        │   │                 predictions
+        │   ├── predict_model.py
+        │   └── train_model.py
+        │
+        └── visualization  <- Scripts to create exploratory and results oriented visualizations
+            └── visualize.py
 
+## 3. Project Setup
+Install make by running the following command:
+```
+//TODO
+```
 
---------
+## 4. Project Pipeline
+create the virtual environment by running:
+```
+//TODO
+```
+Install project's dependencies by running:
+```
+//TODO
+```
 
-//TODO: Project Description
+## 4. Project Results
+
+| Model                              | Accuracy(\%) | Variance(\%) |
+|------------------------------------|--------------|--------------|
+| Example1                           | 80.23        | 0.208        |
+| Example 2                          | **92.04**    | 0.207        |
+
+Final remarks ...
+
