@@ -5,7 +5,7 @@
 #################################################################################
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PROJECT_NAME = ETH-Computational-Intelligence-Lab-2024
+PROJECT_NAME = CIL2024
 PYTHON_INTERPRETER = python3
 
 ifeq (,$(shell which conda))

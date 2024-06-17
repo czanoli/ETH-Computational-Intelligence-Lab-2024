@@ -51,19 +51,20 @@ The goal of this project is to ... //TODO
             └── visualize.py
 
 ## 3. Project Setup
-Install make by running the following command:
-```
-//TODO
-```
+We will be using ```make``` as a task runner (i.e. for setting up the virtual environment, creating the pre-processed dataset, initiating the training, etc...). [GNU Make](https://www.gnu.org/software/make/) is typically pre-installed on Linux and macOS systems. If you are using Windows, you may need to install Make. See the [Installing Make on Windows](https://cookiecutter-data-science.drivendata.org/using-the-template/#installing-make-on-windows) for further information.
+
 
 ## 4. Project Pipeline
-create the virtual environment by running:
+Create the virtual environment by running:
 ```
-//TODO
+make create_environment
 ```
+
+Activate the virtual environment by following the displayed instructions.
+
 Install project's dependencies by running:
 ```
-//TODO
+make requirements
 ```
 
 ## 4. Project Results
