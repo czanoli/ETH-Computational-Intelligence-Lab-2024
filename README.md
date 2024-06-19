@@ -55,17 +55,15 @@ We will be using ```make``` as a task runner (i.e. for setting up the virtual en
 
 
 ## 4. Project Pipeline
-Create the virtual environment by running:
-```
-make create_environment
-```
-
-Activate the virtual environment by following the displayed instructions.
-
 Install project's dependencies by running:
 ```
 make requirements
 ```
+Preprocess the raw training data by running:
+```
+python src/data/preprocess_train.py
+```
+The pre-processed training data will be saved in ```data/processed```
 
 ## 4. Project Results
 
