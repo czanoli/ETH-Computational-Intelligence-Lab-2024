@@ -1,4 +1,12 @@
-dataset_type: "small"
+# full or small
+train_dataset_type: "full"
+
+nan_policy: "drop"
+
+# drop or keep
+shared_duplicates_policy: "drop"
+duplicates_policy: "drop"
+conflict_policy: "drop"
 
 raw_train_paths:
   full:

@@ -10,7 +10,11 @@ from generate_dataset import DataProcessor
 # Load configuration from config.yaml
 with open(Path(__file__).resolve().parent/'config.yml', 'r') as file:
     config = yaml.safe_load(file)
-dataset_type = config["dataset_type"]
+train_dataset_type = config["train_dataset_type"]
+nan_policy = config["nan_policy"]
+duplicates_policy = config["duplicates_policy"]
+shared_duplicates_policy = config["shared_duplicates_policy"]
+conflict_policy = config["conflict_policy"]
 train_files = config['raw_train_paths']
 test_file = config['raw_test_path']
 processed_path = config['processed_train_path']
@@ -26,17 +30,22 @@ def main():
     logger = logging.getLogger(__name__)
     
     logger.info('Creating DataProcessor instance ...')
-    data_processor = DataProcessor(train_files, test_file, processed_path)
+    data_processor = DataProcessor(nan_policy, duplicates_policy, shared_duplicates_policy, conflict_policy, 
+                                   train_dataset_type, project_dir, train_files, test_file, processed_path)
 
+    logger.info('Loading Twitter training data ...')
+    df = data_processor.load_training_data()
+    
     logger.info('Pre-processing Twitter training data from raw data ...')
+    df = data_processor.process_dataframe(df)
     
-    df = data_processor.load_training_data(dataset_type)
+    print(df.head())
+         
+    print("Breakpoint")
+ 
+    #data_processor.save_df_to_csv(df)
     
-    # [TODO]: pre-processing
-    
-    data_processor.save_df_to_csv(df)
-    
-    logger.info(f'Training data has been pre-processed and saved at {processed_path} ! ')
+    #logger.info(f'Training data has been pre-processed and saved at {processed_path} ! ')
 
 
 if __name__ == '__main__':
@@ -44,6 +53,7 @@ if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
     project_dir = Path(__file__).resolve().parents[2]
+    os.chdir(project_dir)
     #load_dotenv(find_dotenv())
 
     main()
