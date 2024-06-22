@@ -59,9 +59,9 @@ Install project's dependencies by running:
 ```
 make requirements
 ```
-Preprocess the raw training data by running:
+From the project root folder, preprocess the raw training data by running:
 ```
-python src/data/preprocess_train.py
+make training_data
 ```
 The pre-processed training data will be saved in ```data/processed```
 
