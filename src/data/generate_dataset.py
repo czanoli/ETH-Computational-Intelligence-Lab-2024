@@ -156,6 +156,7 @@ class DataProcessor:
             tweet = re.sub(r'[^\w\s]', ' ', tweet)
             tweet = re.sub(r'\d', '', tweet)
             tweet = re.sub(r'\brt\b', '', tweet, flags=re.IGNORECASE).strip()
+            tweet = re.sub(r'\b\w\b', '', tweet)
             tweet = ' '.join(tweet.split())
             return tweet
         df['tweet'] = df['tweet'].apply(lambda x: remove_punctuation_symbols_digits_spaces(x))
