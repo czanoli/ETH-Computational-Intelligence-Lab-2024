@@ -166,18 +166,23 @@ class DataProcessor:
         def correct_spelling(tweet):
             words = tweet.split()
             reduced_words = [re.sub(r'(.)\1+', r'\1\1', word) for word in words]
+            
+            # try 1
             #corrected_words = [spell.correction(word) or word for word in reduced_words]
             # ci mette un botto cazzo
-            corrected_words = []
-            correction_cache = defaultdict(str)
-            for word in reduced_words:
-                if word in correction_cache:
-                    corrected_words.append(correction_cache[word])
-                else:
-                    corrected_word = spell.correction(word) or word
-                    correction_cache[word] = corrected_word
-                    corrected_words.append(corrected_word)
-            return ' '.join(corrected_words)
+
+            # try 2 (uguale ma con cache)
+            #corrected_words = []
+            #correction_cache = {}
+            #for word in reduced_words:
+            #    if word in correction_cache:
+            #        corrected_words.append(correction_cache[word])
+            #    else:
+            #        corrected_word = spell.correction(word) or word
+            #        correction_cache[word] = corrected_word
+            #        corrected_words.append(corrected_word)
+            #return ' '.join(corrected_words)
+            return ' '.join(reduced_words)
         df['tweet'] = df['tweet'].apply(lambda x: correct_spelling(x))
         print('-------------------------------- spelling check complete')
 
