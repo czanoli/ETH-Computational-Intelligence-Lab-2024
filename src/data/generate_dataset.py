@@ -7,6 +7,8 @@ import contractions
 import emoji
 from spellchecker import SpellChecker
 from collections import defaultdict
+import nltk
+from nltk.corpus import stopwords, words
 
 
 from vocabulary import *
@@ -16,6 +18,9 @@ with open(Path(__file__).resolve().parent/'config.yml', 'r') as file:
     config = yaml.safe_load(file)
 train_files = config['raw_train_paths']
 test_file = config['raw_test_path']
+nltk.download('stopwords')
+nltk.download('words')
+common = words.words()
 
 class DataProcessor:
     def __init__(self, nan_policy, duplicates_policy, shared_duplicates_policy, conflict_policy, 
@@ -126,6 +131,7 @@ class DataProcessor:
         def process_hashtags(tweet):
             words = tweet.split()
             new_words = []
+
             for word in words:
                 if word.startswith('#'):
                     # if underscores
@@ -157,6 +163,7 @@ class DataProcessor:
             tweet = re.sub(r'\d', '', tweet)
             tweet = re.sub(r'\brt\b', '', tweet, flags=re.IGNORECASE).strip()
             tweet = re.sub(r'\b\w\b', '', tweet)
+            tweet = re.sub(r'\b\w{2}\b', '', tweet)
             tweet = ' '.join(tweet.split())
             return tweet
         df['tweet'] = df['tweet'].apply(lambda x: remove_punctuation_symbols_digits_spaces(x))
@@ -188,20 +195,20 @@ class DataProcessor:
         print('-------------------------------- spelling check complete')
 
         # 12. replace slang and stopwords
-        def replace_slang_and_remove_stopwords(tweet, slang_dict, stopwords):
+        def replace_slang_and_remove_stopwords(tweet, slang_dict):
+            stop_words = set(stopwords.words('english'))
             words = tweet.split()
             new_words = []
             for word in words:
-                word_clean = re.sub(r'[^\w\s]', '', word)
-                if word_clean.lower() in slang_dict:
-                    new_word = slang_dict[word_clean.lower()]
+                if word.lower() in slang_dict:
+                    new_word = slang_dict[word.lower()]
                 else:
-                    new_word = word_clean
-                if new_word.lower() not in stopwords:
+                    new_word = word
+                if new_word.lower() not in stop_words:
                     new_words.append(new_word)
             new_tweet = ' '.join(new_words)
             return new_tweet
-        df['tweet'] = df['tweet'].apply(lambda x: replace_slang_and_remove_stopwords(x, slang_dict, stopwords))
+        df['tweet'] = df['tweet'].apply(lambda x: replace_slang_and_remove_stopwords(x, slang_dict))
         print('-------------------------------- splanc and stopwords removal complete')
 
         
