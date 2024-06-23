@@ -5,7 +5,7 @@
 - Authors: Christopher Zanoli, Federica Bruni, Francesco Rita, Matteo Boglioni
 
 ## 1. Project Description
-The goal of this project is to ... //TODO
+The goal of the project is to ... //TODO
 
 ## 2. Project Organization
     ├── LICENSE
