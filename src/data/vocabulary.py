@@ -322,7 +322,7 @@ stopwords = set([
     'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 
     'will', 'just', 'don', 'should', 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', 
     'couldn', 'didn', 'doesn', 'hadn', 'hasn', 'haven', 'isn', 'ma', 'mightn', 'mustn', 'needn', 
-    'shan', 'shouldn', 'wasn', 'weren', 'won', 'wouldn'
+    'shan', 'shouldn', 'wasn', 'weren', 'won', 'wouldn', 'x', 'xx'
 ])
 
 
