@@ -208,6 +208,7 @@ slang_dict = {'2day': 'today',
  'sis': 'sister',
  'sitd': 'still in the dark',
  'smh': 'shaking my head',
+ 'sm': 'something',
  'sol': 'sooner or later',
  'srsly': 'seriously',
  'sry': 'sorry',
@@ -303,12 +304,12 @@ common_words = set([
     'stupid', 'bird', 'bitch','wahhh', 'desperate', 'housewives', 'glasgow', 'getting', 'excited', 
     'ive', 'noticed', 'that', 'best', 'friends', 'forever', 'imy', 'meanie', 'butthead', 'hallelujah', 
     'utb', 'believe', 'save', 'me', 'theyre', 'scared', 'starved', 'i', 'wanna', 'be', 'there', 'its', 
-    'sad', 'that','ve', 'grow', 'up', 'down', 'miss', 'this', 'throwback', 'thursday','me','for', 'life'
+    'sad', 'that','ve', 'grow', 'up', 'down', 'miss', 'this', 'throwback', 'thursday','me','for', 'life', 'why', 'being '
 ])
 
 
 # stop-words
-stopwords = set([
+stopword = set([
     'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 
     'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 
     'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 
@@ -322,7 +323,7 @@ stopwords = set([
     'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 
     'will', 'just', 'don', 'should', 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', 
     'couldn', 'didn', 'doesn', 'hadn', 'hasn', 'haven', 'isn', 'ma', 'mightn', 'mustn', 'needn', 
-    'shan', 'shouldn', 'wasn', 'weren', 'won', 'wouldn', 'x', 'xx'
+    'shan', 'shouldn', 'wasn', 'weren', 'won', 'wouldn', 'x', 'xx', 'hey'
 ])
 
 
