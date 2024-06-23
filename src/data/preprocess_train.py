@@ -43,9 +43,9 @@ def main():
          
     print("Breakpoint")
  
-    #data_processor.save_df_to_csv(df)
+    data_processor.save_df_to_csv(df)
     
-    #logger.info(f'Training data has been pre-processed and saved at {processed_path} ! ')
+    logger.info(f'Training data has been pre-processed and saved at {processed_path} ! ')
 
 
 if __name__ == '__main__':
