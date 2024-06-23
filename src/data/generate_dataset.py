@@ -5,6 +5,9 @@ from ydata_profiling import ProfileReport
 import re
 import contractions
 import emoji
+from spellchecker import SpellChecker
+from collections import defaultdict
+
 
 from vocabulary import *
 
@@ -108,6 +111,97 @@ class DataProcessor:
         # 8.2 De-emoticonize [Creativity]
         pattern = re.compile('|'.join(map(re.escape, emoticon_meanings.keys())))
         df['tweet'] = df['tweet'].apply(lambda tweet: pattern.sub(lambda x: emoticon_meanings[x.group()], tweet))
+
+        #NOTE: I THINK PUNCTUATION SHOULD BE REMOVED BEFORE ALL THIS STUFF
+        #NOTE: I 'lol' non vengono rimossi tutti perche a volte sono scritti male quindi -> prima di togliere parole vanno tolti errori
+        #NOTE: stessa cosa per gli hashtag -> prima
+        '''
+            new order:
+            9. togliere hashtags -> rimuovi simbolo, se underscore spezza, se camelcase spezza, altrimenti cerca di spezzare in parole
+            10. toglere punteggiatura, simboli, numeri e spazi in eccesso
+            11. rimuovere errori spelling
+            12. fix slang e stop-words '''
+        
+        # 9. Hashtag removal
+        def process_hashtags(tweet):
+            words = tweet.split()
+            new_words = []
+            for word in words:
+                if word.startswith('#'):
+                    # if underscores
+                    words = word[1:].replace('_', ' ')
+                    # if camel-case
+                    words = re.sub(r'([a-z])([A-Z])', r'\1 \2', words)
+                    # if all undercase words -> common words list
+                    split_words = []
+                    temp_word = ''
+                    i = 0
+                    while i < len(words):
+                        temp_word += words[i]
+                        if temp_word.lower() in common_words:
+                            split_words.append(temp_word)
+                            temp_word = ''
+                        i += 1
+                    if temp_word:
+                        split_words.append(temp_word)
+                    word = ' '.join(split_words).lower()
+                new_words.append(word)
+            new_tweet = ' '.join(new_words)
+            return new_tweet
+        df['tweet'] = df['tweet'].apply(lambda x: process_hashtags(x))
+        print('-------------------------------- hashtag removal complete')
+
+        # 10. remove punctuation, symbols, digits and useless spaces + remove rt = retweet 
+        def remove_punctuation_symbols_digits_spaces(tweet):
+            tweet = re.sub(r'[^\w\s]', ' ', tweet)
+            tweet = re.sub(r'\d', '', tweet)
+            tweet = re.sub(r'\brt\b', '', tweet, flags=re.IGNORECASE).strip()
+            tweet = ' '.join(tweet.split())
+            return tweet
+        df['tweet'] = df['tweet'].apply(lambda x: remove_punctuation_symbols_digits_spaces(x))
+        print('-------------------------------- remove punctuation, symbols, digits and spaces complete')
+
+        # 11. correct spelling
+        spell = SpellChecker()
+        def correct_spelling(tweet):
+            words = tweet.split()
+            reduced_words = [re.sub(r'(.)\1+', r'\1\1', word) for word in words]
+            #corrected_words = [spell.correction(word) or word for word in reduced_words]
+            # ci mette un botto cazzo
+            corrected_words = []
+            correction_cache = defaultdict(str)
+            for word in reduced_words:
+                if word in correction_cache:
+                    corrected_words.append(correction_cache[word])
+                else:
+                    corrected_word = spell.correction(word) or word
+                    correction_cache[word] = corrected_word
+                    corrected_words.append(corrected_word)
+            return ' '.join(corrected_words)
+        df['tweet'] = df['tweet'].apply(lambda x: correct_spelling(x))
+        print('-------------------------------- spelling check complete')
+
+        # 12. replace slang and stopwords
+        def replace_slang_and_remove_stopwords(tweet, slang_dict, stopwords):
+            words = tweet.split()
+            new_words = []
+            for word in words:
+                word_clean = re.sub(r'[^\w\s]', '', word)
+                if word_clean.lower() in slang_dict:
+                    new_word = slang_dict[word_clean.lower()]
+                else:
+                    new_word = word_clean
+                if new_word.lower() not in stopwords:
+                    new_words.append(new_word)
+            new_tweet = ' '.join(new_words)
+            return new_tweet
+        df['tweet'] = df['tweet'].apply(lambda x: replace_slang_and_remove_stopwords(x, slang_dict, stopwords))
+        print('-------------------------------- splanc and stopwords removal complete')
+
+        
+
+
+
         
         '''
         [//TODO IN ORDER]

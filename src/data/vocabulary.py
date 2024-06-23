@@ -1,6 +1,5 @@
-
 # Twitter slang vocabulary
-{'2day': 'today',
+slang_dict = {'2day': 'today',
  '2m2h': 'too much too handle',
  '2moro': 'tomorrow',
  '2nite': 'tonight',
@@ -264,6 +263,67 @@
  'ytb': 'you are the best',
  'yw': 'you are welcome',
  'ywsyls': 'you win some you lose some'}
+
+# common words for hashtag removal
+common_words = set([
+    'i', 'love', 'you', 'thank', 'peace', 'sad', 'day', 'happy', 'with', 'the', 'service', 'customer', 
+    'really', 'bad', 'experience', 'worst', 'ever', 'excited', 'about', 'product', 'new', 'launch', 
+    'purchase', 'feeling', 'great', 'disappointed', 'quality', 'absolutely', 'wonderful', 'terrible', 
+    'never', 'again', 'this', 'is', 'a', 'test', 'camel', 'case', 'test', 'date', 'night', 'tumblr', 
+    'signs', 'she', 'not', 'days', 'counting', 'mr', 'mrs', 'pop', 'got', 'you', 'covered', 'little', 
+    'buddy', 'wah', 'avengers', 'assemble', 'mmk', 'love', 'gel', 'books', 'book', 'boring', 
+    'things', 'my', 'best', 'friend', 'does', 'true', 'confessions', 'is', 'mad', 'rva', 'jobs', 
+    'fanny', 'flashin', 'lawson', 'ryan', 'follows', 'absolutely', 'gutted', 'my', 'heroic', 'alias', 
+    'in', 'tears', 'passion', 'boo', 'sherlock', 'ehh', 'ps3', 'no', 'one', 'loves', 'me', 'desperate', 
+    'housewives', 'lifes', 'tough', 'ready', 'to', 'go', 'oomf', 'served', 'me', 'well', 'working', 
+    'weekends', 'should', 'be', 'illegal', 'fb', 'big', 'time', 'summer', 'tour', 'this', 'sucks', 
+    'bad', 'ff', 'sad', 'tweet', 'so', 'cold', 'nostalgic', 'miss', 'my', 'sissy', 'no', 'one', 'to', 
+    'walk', 'with', 'rip', 'whitney', 'robsten', 'coachella', '254', 'fml', 'rockstar', 'lifestyle', 
+    'fb', 'poor', 'baby', 'sign', 'im', 'too', 'tired', 'for', 'today', 'busy', 'prick', 'alberta', 
+    'jobs', 'one', 'less', 'family', 'member', 'lonely', 'its', 'sad', 'that', 'f1', 'wtf', 'not', 
+    'ok', 'lies', 'i', 'was', 'told', 'pocket', 'aces', 'summer', 'time', 'native', 'gas', 
+    'card', 'that', 'hurts', 'more', 'than', 'blisters', 'imagine', 'jealous', 'tweet', 'good', 
+    'times', 'it', 'was', 'fun', 'while', 'it', 'lasted', 'high', 'five', 'trying', 'to', 'hide', 
+    'too', 'bad', 'idk', 'how', 'he', 'feels', 'ritz', 'obsessions', 'frequency', 'lonely', 
+    'welcome', 'back', 'nicki', 'memories', 'pahleaseee', 'braves', 'lucky', 'miss', 'you', 'golf', 
+    'clap', 'kill', 'me', 'now', 'gassin', 'depressing', 'awky', 'train', 'rides', 'with', 'kevin', 
+    'so', 'sad', 'bieber', 'fact', 'two', 'knicks', 'heat', 'nba', 'playoffs', 'sad', 'life', 'ask', 
+    'jessie', 'monkey', 'bread', 'burned', 'cold', 'af', 'san', 'francisco', 'vegetarian', 'jobs', 
+    'empleo', 'se', 'busca', 'japan', 'about', 'me', 'smart', 'nokia', 'lumia', '30', 'days', 'insomnia', 
+    'bruins', 'sigh', 'bad', 'mood', 'obsession', 'team', 'jonathas', 'good', 'night', 'note', 'sad', 
+    'tweet', 'sick', 'as', 'hell', 'ughhh', 'las', 'vegas', 'get', 'married', 'nadz', 'pandora', 
+    'too', 'damn', 'funny', 'miss', 'you', 'in', 'my', 'sad', 'voice', 'sad', 'tweet', 'time', '100', 
+    'newark', 'call', 'my', 'name', 'dwrs', 'help', 'me', 'deals', 'connie', 'friend', 'this', 
+    'sucks', 'loved', 'him', 'idol', 'oomf', 'her', 'boyfriend', 'need', 'to', 'sleep', 'stone', 
+    'hands', 'that', 'awkward', 'moment', 'fml', 'bitch', 'please', 'craving', 'worried', 'real', 
+    'estate', 'sad', 'tweet', 'seomoz', 'np', 'unfaithful', 'wife', 'the', 'voice', 'sad', 'tweet', 
+    'i', 'admit', 'soft', 'buz', 'the', 'voice', '2', 'broke', 'girls', 'too', 'much', 'love', 
+    'for', 'the', 'lane', 'wasnt', 'home', 'went', 'bmdc', 'jersey', 'shore', 'vampire', 'diaries', 
+    'hating', 'life', 'free', 'ebooks', 'kindle', 'ohsen', 'jealous', 'r10', 'top', 'joka', 
+    'stupid', 'bird', 'bitch','wahhh', 'desperate', 'housewives', 'glasgow', 'getting', 'excited', 
+    'ive', 'noticed', 'that', 'best', 'friends', 'forever', 'imy', 'meanie', 'butthead', 'hallelujah', 
+    'utb', 'believe', 'save', 'me', 'theyre', 'scared', 'starved', 'i', 'wanna', 'be', 'there', 'its', 
+    'sad', 'that','ve', 'grow', 'up', 'down', 'miss', 'this', 'throwback', 'thursday','me','for', 'life'
+])
+
+
+# stop-words
+stopwords = set([
+    'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 
+    'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 
+    'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 
+    'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 
+    'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 
+    'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 
+    'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 
+    'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 
+    'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 
+    'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 
+    'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 
+    'will', 'just', 'don', 'should', 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', 
+    'couldn', 'didn', 'doesn', 'hadn', 'hasn', 'haven', 'isn', 'ma', 'mightn', 'mustn', 'needn', 
+    'shan', 'shouldn', 'wasn', 'weren', 'won', 'wouldn'
+])
 
 
 # Smiles vocabulary
