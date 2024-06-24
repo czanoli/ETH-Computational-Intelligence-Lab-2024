@@ -4,6 +4,7 @@ asttokens==2.4.1
 attrs==23.2.0
 certifi==2024.6.2
 charset-normalizer==3.3.2
+click==8.1.7
 comm==0.2.2
 contourpy==1.2.1
 contractions==0.1.73
@@ -33,6 +34,7 @@ missingno==0.5.2
 multimethod==1.11.2
 nest-asyncio==1.6.0
 networkx==3.3
+nltk==3.8.1
 numba==0.60.0
 numpy==1.26.4
 packaging==24.1
@@ -52,11 +54,13 @@ pydantic==2.7.4
 pydantic_core==2.18.4
 Pygments==2.18.0
 pyparsing==3.1.2
+pyspellchecker==0.8.1
 python-dateutil==2.9.0.post0
 pytz==2024.1
 PyWavelets==1.6.0
 PyYAML==6.0.1
 pyzmq==26.0.3
+regex==2024.5.15
 requests==2.32.3
 scikit-learn==1.5.0
 scipy==1.13.1
