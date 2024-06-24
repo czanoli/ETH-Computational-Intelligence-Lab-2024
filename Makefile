@@ -1,24 +1,41 @@
-.PHONY: clean data requirements
+.PHONY: clean data requirements create_env
 
 #################################################################################
 # GLOBALS                                                                       #
 #################################################################################
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PYTHON_INTERPRETER = python3
+PYTHON_INTERPRETER = .venv/bin/python
 
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
 
+## Create and activate virtual environment
+create_env:
+	@if [ -d ".venv" ]; then \
+		echo "Virtual environment already exists."; \
+	else \
+		echo "Creating virtual environment..."; \
+		python3 -m venv .venv; \
+		echo "Virtual environment created."; \
+	fi
+	@echo "#"
+	@echo "# To activate this environment, use"
+	@echo "#"
+	@echo "#     >> source .venv/bin/activate"
+	@echo "#"
+	@echo "# To deactivate an active environment, use"
+	@echo "#"
+	@echo "#     >> deactivate"
+
 ## Install Python Dependencies
-requirements: test_environment
-	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
+requirements:
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
 training_data:
-	$(PYTHON_INTERPRETER) src/data/preprocess_train.py
+	@. .venv/bin/activate && $(PYTHON_INTERPRETER) src/data/preprocess_train.py
 
 ## Delete all compiled Python files
 clean:
@@ -27,7 +44,7 @@ clean:
 
 ## Test python environment is setup correctly
 test_environment:
-	$(PYTHON_INTERPRETER) test_environment.py
+	@. .venv/bin/activate && $(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################
 # Self Documenting Commands                                                     #
