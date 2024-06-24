@@ -1,5 +1,5 @@
 # full or small
-train_dataset_type: "full"
+train_dataset_type: "small"
 
 nan_policy: "drop"
 
