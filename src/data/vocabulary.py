@@ -263,7 +263,11 @@ slang_dict = {'2day': 'today',
  'yolo': 'you only live once',
  'ytb': 'you are the best',
  'yw': 'you are welcome',
- 'ywsyls': 'you win some you lose some'}
+ 'ywsyls': 'you win some you lose some',
+ 'xx': 'kisses',
+ 'ya': 'your',
+ 'mama':'mom',
+ 'lil':'little'}
 
 # common words for hashtag removal
 common_words = set([
