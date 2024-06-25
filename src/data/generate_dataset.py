@@ -16,6 +16,7 @@ from nltk.corpus import wordnet
 import wordninja
 from symspellpy import SymSpell
 import pkg_resources
+from tqdm import tqdm
 
 # Load configuration from config.yaml
 with open(Path(__file__).resolve().parent/'config.yml', 'r') as file:
@@ -28,6 +29,7 @@ common = words.words()
 sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
 dictionary_path = pkg_resources.resource_filename("symspellpy", "frequency_dictionary_en_82_765.txt")
 sym_spell.load_dictionary(dictionary_path, term_index=0, count_index=1)
+tqdm.pandas()
 
 
 class DataProcessor:
