@@ -5,8 +5,7 @@
 #################################################################################
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PYTHON_INTERPRETER = .venv/bin/python
-
+PYTHON_INTERPRETER = python
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
@@ -35,7 +34,7 @@ requirements:
 
 ## Make Dataset
 training_data:
-	@. .venv/bin/activate && $(PYTHON_INTERPRETER) src/data/preprocess_train.py
+	$(PYTHON_INTERPRETER) src/data/preprocess_train.py
 
 ## Delete all compiled Python files
 clean:
@@ -44,7 +43,7 @@ clean:
 
 ## Test python environment is setup correctly
 test_environment:
-	@. .venv/bin/activate && $(PYTHON_INTERPRETER) test_environment.py
+	$(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################
 # Self Documenting Commands                                                     #

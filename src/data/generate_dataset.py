@@ -1,7 +1,7 @@
 import pandas as pd
 import yaml
 from pathlib import Path
-from ydata_profiling import ProfileReport
+#from ydata_profiling import ProfileReport
 import re
 import contractions
 import emoji
@@ -13,6 +13,8 @@ import pandas as pd
 from nltk.stem import WordNetLemmatizer
 from nltk import pos_tag, word_tokenize
 from nltk.corpus import wordnet
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
 import wordninja
 from symspellpy import SymSpell
 import pkg_resources
@@ -73,9 +75,9 @@ class DataProcessor:
     def nulls_info(self, df):
         return df.isnull().sum()
     
-    def profile(self, df):
-        profile = ProfileReport(df, title="Twitter Sentiment EDA Report", minimal=True)
-        profile.to_file(self.prj_dir / f"reports/twitter_sentiment_eda_{self.dataset_type}.html")
+    #def profile(self, df):
+        #profile = ProfileReport(df, title="Twitter Sentiment EDA Report", minimal=True)
+        #profile.to_file(self.prj_dir / f"reports/twitter_sentiment_eda_{self.dataset_type}.html")
     
     def process_dataframe(self, df, df2=None):
         """
@@ -259,7 +261,7 @@ class DataProcessor:
         lemmatizer = WordNetLemmatizer()
         # 14.2 - assigns part-of-speech tags to each word
         def get_pos(treebank_tag):
-            ''' Thos function converts Treebank POS tags (NLTK) to WordNet POS tags
+            ''' This function converts Treebank POS tags (NLTK) to WordNet POS tags
                 - Treebank POS Tags: tags used by the POS tagger in NLTK
                 - WordNet POS Tags: tags used by the WordNet lemmatizer'''
             # 14.2.1 - case 1: adjective, map J -> Wordnet.ADJ 
@@ -294,38 +296,14 @@ class DataProcessor:
 
         
         '''
-        [//TODO IN ORDER]
-            > [DONE] Handling Slang. Note: augment vocabulary by inspecting data
+        > [Done notebook] Text encoding/ Vectorization
         
-            > [DONE] Stop-word removal
-        
-            > [DONE] Handling Numerical values (remove)
-        
-            > [DONE] Handle hashtag [creativity]: remove symbol and, for each hashtag, split it into the comprising words. 
-                        Then new columns? Append to tweet? For sure they are useful for sercasm detection
-                        Attenzione perchè qua, per ogni twwt, ogni hashtag devi separarlo nelle sue parole componenti. Vedi wordsegment
-                        #df['hashtags'] = df['tweet'].apply(lambda x: re.findall(r"#(\S+)", x))
-                        #df['tweet'] = df['tweet'].apply(lambda x: re.sub(r"#\S+", "", x))
-
-            > [DONE] Spelling correction (multiple letters, switched letters)
-        
-        
-            > [DONE PARTIALLY -> only short words] Non-words / short/rare words removal
-        
-            > [DONE] Part-of-Speech tagging
-        
-            > [DONE] Lemmatization
-        
-        > Sarcasm detection [creativity] => change sentiment polarity (heuristic or DL?)
-        
-        > Dimensionality Reduction [creativity]
-        
-        > Text encoding/ Vectorization
-        
-        > Label Encoding
+        > [Done notebook] Label Encoding
         
     
         Backlog:
+            > [backlog] Sarcasm detection [creativity] => change sentiment polarity (heuristic or DL?)
+            > [backlog] Dimensionality Reduction [creativity]
             - Si possono mettere parole chiave come alert? Tipo 'guerra'? O è cheating?
             - Padding/Truncation
         '''
