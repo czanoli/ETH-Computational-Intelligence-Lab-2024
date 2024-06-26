@@ -1,0 +1,7 @@
+####################### train_small_no_sarcasm
+########       Logistic Regression       ########
+	--> best value for hyperparameter "solver":  saga
+	--> best value for hyperparameter "penalty":  l2
+	--> best value for hyperparameter "C":  1
+	Elapsed time for GridSearch:  0:48:17.442390
+
