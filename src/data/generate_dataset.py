@@ -35,9 +35,9 @@ tqdm.pandas()
 
 
 class DataProcessor:
-    def __init__(self, nan_policy, duplicates_policy, shared_duplicates_policy, conflict_policy, 
-                 dataset_type, prj_dir, train_files, test_file, output_file):
-        self.nan_policy = nan_policy
+    def __init__(self, duplicates_policy, shared_duplicates_policy, conflict_policy, 
+                 dataset_type, prj_dir, train_files, test_file, output_file, preprocessing_policy,
+                 hashtag_policy):
         self.duplicates_policy = duplicates_policy
         self.shared_duplicates_policy = shared_duplicates_policy
         self.conflict_policy = conflict_policy
@@ -46,6 +46,8 @@ class DataProcessor:
         self.train_files = train_files
         self.test_file = test_file
         self.output_file = output_file
+        self.preprocessing_policy = preprocessing_policy
+        self.hashtag_policy = hashtag_policy
     
     def load_training_data(self):
         if self.dataset_type not in self.train_files.keys():
@@ -91,43 +93,60 @@ class DataProcessor:
         tuple: The processed DataFrame(s). If df2 is None, returns (df,). Otherwise, returns (df, df2).
         """
         # 1. Handle null values
-        if self.nan_policy == "drop":
+        if self.preprocessing_policy.get("handle_null"):
             df = df.dropna()
+            print('-------------------------------- nulls removal completed')
         
         # 2. Handle duplicates
-        if self.duplicates_policy == "drop":
-            df = df.drop_duplicates()
-        elif self.duplicates_policy == "keep":
-            df = df[df.duplicated(keep=False)]
+        if self.preprocessing_policy.get("handle_duplicates"):
+            if self.duplicates_policy == "drop":
+                df = df.drop_duplicates()
+            elif self.duplicates_policy == "keep":
+                df = df[df.duplicated(keep=False)]
+            print('-------------------------------- duplicates handling completed')
             
         # 3. Handle conflicting tweets
-        conflict_tweets = df[df.duplicated(subset='tweet', keep=False)]
-        if self.conflict_policy == "drop":
-            df = df[~df['tweet'].isin(conflict_tweets['tweet'])]
-        elif self.conflict_policy == "keep":
-            df = conflict_tweets
+        if self.preprocessing_policy.get("handle_conflicting_tweets"):
+            conflict_tweets = df[df.duplicated(subset='tweet', keep=False)]
+            if self.conflict_policy == "drop":
+                df = df[~df['tweet'].isin(conflict_tweets['tweet'])]
+            elif self.conflict_policy == "keep":
+                df = conflict_tweets
+            print('-------------------------------- conflicting tweets completed')
             
         # 4. Lowercase
-        df['tweet'] = df['tweet'].apply(lambda x: x.lower())
+        if self.preprocessing_policy.get("lowercasing"):
+            df['tweet'] = df['tweet'].apply(lambda x: x.lower())
+            print('-------------------------------- lowercasing completed')
         
         # 5. Remove <user> and <url>
-        df['tweet'] = df['tweet'].str.replace('<user>', '', regex=False)
-        df['tweet'] = df['tweet'].str.replace('<url>', '', regex=False)
+        if self.preprocessing_policy.get("tag_removal"):
+            df['tweet'] = df['tweet'].str.replace('<user>', '', regex=False)
+            df['tweet'] = df['tweet'].str.replace('<url>', '', regex=False)
+            print('-------------------------------- tag removal completed')
         
         # 6. Whitespace Stripping
-        df['tweet'] = df['tweet'].apply(lambda x: x.strip())
-        df['tweet'] = df['tweet'].apply(lambda x: " ".join(x.split()))
+        if self.preprocessing_policy.get("whitespace_stripping"):
+            df['tweet'] = df['tweet'].apply(lambda x: x.strip())
+            df['tweet'] = df['tweet'].apply(lambda x: " ".join(x.split()))
+            print('-------------------------------- whitespace stripping completed')
         
         # 7. Expand contractions
-        df['tweet'] = df['tweet'].apply(contractions.fix)
+        if self.preprocessing_policy.get("handle_contractions"):
+            df['tweet'] = df['tweet'].apply(contractions.fix)
+            print('-------------------------------- contractions handling completed')
 
         # 8.1 De-emojize [Creativity]
-        df['tweet'] = df['tweet'].apply(lambda x: emoji.demojize(x, delimiters=(" ", " ")))
-        df['tweet'] = df['tweet'].replace(":", "").replace("_", " ")
+        if self.preprocessing_policy.get("de_emojze"):
+            df['tweet'] = df['tweet'].apply(lambda x: emoji.demojize(x, delimiters=(" ", " ")))
+            df['tweet'] = df['tweet'].replace(":", "").replace("_", " ")
+            print('-------------------------------- de-emojization completed')
         
         # 8.2 De-emoticonize [Creativity]
-        pattern = re.compile('|'.join(map(re.escape, emoticon_meanings.keys())))
-        df['tweet'] = df['tweet'].apply(lambda tweet: pattern.sub(lambda x: emoticon_meanings[x.group()], tweet))
+        if self.preprocessing_policy.get("de_emoticonize"):
+            pattern = re.compile('|'.join(map(re.escape, emoticon_meanings.keys())))
+            df['tweet'] = df['tweet'].apply(lambda tweet: pattern.sub(lambda x: emoticon_meanings[x.group()], tweet))
+            print('-------------------------------- de-emoticonization completed')
 
         '''
             cosa c'è:
@@ -148,20 +167,31 @@ class DataProcessor:
             for word in words:
                 # 9.3 - if word begins with hashtag
                 if word.startswith('#'):
-                    # 9.4 - split hashtag into list of single words 
-                    words = wordninja.split(word.lstrip("#"))
-                    # 9.5 - join list of words into single string
-                    split_words = " ".join(words).lower()
-                    # 9.6 - append to list of words of the tweet
-                    new_words.append(split_words)
+                    if self.hashtag_policy == "keep":
+                        # 9.4 - split hashtag into list of single words 
+                        words = wordninja.split(word.lstrip("#"))
+                        # 9.5 - join list of words into single string
+                        split_words = " ".join(words).lower()
+                        # 9.6 - append to list of words of the tweet
+                        new_words.append(split_words)
+                    elif self.hashtag_policy == "drop":
+                        # Split tweet into words
+                        words = tweet.split()
+                        # Filter out words that start with a hashtag
+                        new_words = [word for word in words if not word.startswith('#')]
+                        # Join the words back into a single string
+                        new_tweet = ' '.join(new_words)
+                    else:
+                        raise ValueError("Wrong hashtag_policy provided.")
                 else:
                     # 9.7 - if not hashtag simply add words to the list of words of the tweet
                     new_words.append(word)
             # 9.8 - merge all words of the tweet together
             new_tweet = ' '.join(new_words)
             return new_tweet
-        df['tweet'] = df['tweet'].apply(lambda x: process_hashtags(x))
-        print('-------------------------------- hashtag removal completed')
+        if self.preprocessing_policy.get("hastag_handling"):
+            df['tweet'] = df['tweet'].apply(lambda x: process_hashtags(x))
+            print('-------------------------------- hashtag removal completed')
 
         # 10. tweet cleaning
         def remove_punctuation_symbols_digits_spaces(tweet):
@@ -193,8 +223,9 @@ class DataProcessor:
             # 10.8 - replace 'xoxo' and similar with 'kiss'
             tweet = re.sub(r'\b(xo)+x?\b', 'kiss', tweet)
             return tweet
-        df['tweet'] = df['tweet'].apply(lambda x: remove_punctuation_symbols_digits_spaces(x))
-        print('-------------------------------- cleaning completed')
+        if self.preprocessing_policy.get("handle_punctuation"):
+            df['tweet'] = df['tweet'].apply(lambda x: remove_punctuation_symbols_digits_spaces(x))
+            print('-------------------------------- punctuation removal completed')
 
         # 11. replace slang
         def replace_slang(tweet, slang_dict):
@@ -217,8 +248,9 @@ class DataProcessor:
             # 11.7 - merge all words of the tweet together
             new_tweet = ' '.join(new_words)
             return new_tweet
-        df['tweet'] = df['tweet'].apply(lambda x: replace_slang(x, slang_dict))
-        print('-------------------------------- slang replacement completed')
+        if self.preprocessing_policy.get("replace_slang"):
+            df['tweet'] = df['tweet'].apply(lambda x: replace_slang(x, slang_dict))
+            print('-------------------------------- slang replacement completed')
 
         # 12. correct spelling
         def correct_spelling(tweet):
@@ -232,8 +264,9 @@ class DataProcessor:
                 tweet = suggestions[0].term
             # 12.4 - if there is no suggestion keep the spelling unchanged
             return tweet
-        df['tweet'] = df['tweet'].progress_apply(lambda x: correct_spelling(x))
-        print('-------------------------------- spelling check completd')
+        if self.preprocessing_policy.get("correct_spelling"):
+            df['tweet'] = df['tweet'].progress_apply(lambda x: correct_spelling(x))
+            print('-------------------------------- spelling check completd')
 
         # 13. remove stopwords
         def remove_stopwords(tweet):
@@ -253,8 +286,9 @@ class DataProcessor:
             # 13.6 - merge all words of the tweet together
             new_tweet = ' '.join(new_words)
             return new_tweet
-        df['tweet'] = df['tweet'].apply(lambda x: remove_stopwords(x))
-        print('--------------------------------  stopwords removal completed')
+        if self.preprocessing_policy.get("remove_stopwords"):
+            df['tweet'] = df['tweet'].apply(lambda x: remove_stopwords(x))
+            print('--------------------------------  stopwords removal completed')
 
         # 14. lemmatization
         # 14.1 - initialize the WordNet lemmatizer
@@ -291,8 +325,9 @@ class DataProcessor:
             # 14.3.4 - merge all lemmatized words of the tweet together
             lemmatized_tweet = ' '.join(lemmatized_words)
             return lemmatized_tweet
-        df['tweet'] = df['tweet'].apply(lambda x: lemmatization(x))
-        print('-------------------------------- lemmatization complete')
+        if self.preprocessing_policy.get("lemmatization"):
+            df['tweet'] = df['tweet'].apply(lambda x: lemmatization(x))
+            print('-------------------------------- lemmatization completed')
 
         
         '''
