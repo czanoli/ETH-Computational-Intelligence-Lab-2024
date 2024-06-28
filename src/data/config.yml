@@ -15,8 +15,7 @@ raw_train_paths:
     - "data/raw/train_pos.txt"
     - "data/raw/train_neg.txt"
 
-raw_test_path:
-  test: "data/raw/test_data.txt"
+raw_test_path: "data/raw/test_data.txt"
 
 processed_train_path: "data/processed/train.csv"
 processed_test_path: "data/processed/test.csv"
@@ -98,6 +97,7 @@ preprocessing_policy_4:
 
 # Pre-processing policy with keep hashatg (Buona: BoW 80.44% (SVC))
 preprocessing_policy_5:
+  name: "policy_5"
   handle_null: True
   handle_duplicates: False
   handle_conflicting_tweets: False

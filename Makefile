@@ -33,8 +33,8 @@ requirements:
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
-training_data:
-	$(PYTHON_INTERPRETER) src/data/preprocess_train.py
+data:
+	$(PYTHON_INTERPRETER) src/data/preprocess_data.py
 
 ## Delete all compiled Python files
 clean:
