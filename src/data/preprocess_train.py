@@ -10,8 +10,9 @@ from generate_dataset import DataProcessor
 # Load configuration from config.yaml
 with open(Path(__file__).resolve().parent/'config.yml', 'r') as file:
     config = yaml.safe_load(file)
+preprocessing_policy = config['preprocessing_policy_5']
 train_dataset_type = config["train_dataset_type"]
-nan_policy = config["nan_policy"]
+hashtag_policy = config["hashtag_policy"]
 duplicates_policy = config["duplicates_policy"]
 shared_duplicates_policy = config["shared_duplicates_policy"]
 conflict_policy = config["conflict_policy"]
@@ -30,8 +31,9 @@ def main():
     logger = logging.getLogger(__name__)
     
     logger.info('Creating DataProcessor instance ...')
-    data_processor = DataProcessor(nan_policy, duplicates_policy, shared_duplicates_policy, conflict_policy, 
-                                   train_dataset_type, project_dir, train_files, test_file, processed_path)
+    data_processor = DataProcessor(duplicates_policy, shared_duplicates_policy, conflict_policy, 
+                                   train_dataset_type, project_dir, train_files, test_file, processed_path,
+                                   preprocessing_policy, hashtag_policy)
 
     logger.info('Loading Twitter training data ...')
     df = data_processor.load_training_data()
