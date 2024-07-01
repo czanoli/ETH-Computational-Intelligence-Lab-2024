@@ -68,7 +68,7 @@ root
              ├── train_neg_full.txt
              ├── train_neg.txt
              ├── train_pos_full.txt
-             └──  train_pos.txt
+             └── train_pos.txt
 ```
 
 ## 4. Project Pipeline
