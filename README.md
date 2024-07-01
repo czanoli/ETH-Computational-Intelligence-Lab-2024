@@ -5,19 +5,14 @@
 - Authors: Christopher Zanoli, Federica Bruni, Francesco Rita, Matteo Boglioni
 
 ## 1. Project Description
-The goal of the project is to ... //TODO
+The goal of the project is to classify if the sentiment of Twitter tweets is positive or negative.
 
 ## 2. Project Organization
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
+    |
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
     │   ├── processed      <- The final, canonical data sets for modeling.
     │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
     │
@@ -28,6 +23,7 @@ The goal of the project is to ... //TODO
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
+    |   ├── interim        <- Generated code results to be used in reporting
     │   └── figures        <- Generated graphics and figures to be used in reporting
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
@@ -36,16 +32,21 @@ The goal of the project is to ... //TODO
     └── src                <- Source code for use in this project.
         ├── __init__.py    <- Makes src a Python module
         │
-        ├── data           <- Scripts to download or generate data
-        │   └── make_dataset.py
+        ├── data           <- Scripts and config to download or generate data
+        |   ├── generate_dataset.py
+        |   ├── config.yml
+        |   ├── vocabulary.py
+        │   └── preprocess_train.py
         │
         ├── features       <- Scripts to turn raw data into features for modeling
         │   └── build_features.py
         │
-        ├── models         <- Scripts to train models and then use trained models to make
+        ├── models         <- Scripts and config to train models and then use trained models to make
         │   │                 predictions
-        │   ├── predict_model.py
-        │   └── train_model.py
+        │   ├── download_glove_fasttext.py
+        │   ├── config.yml
+        │   ├── predict.py
+        │   └── train.py
         │
         └── visualization  <- Scripts to create exploratory and results oriented visualizations
             └── visualize.py
@@ -138,19 +139,30 @@ python src/models/predict.py --model models/fasttext_model.bin --data data/proce
 - LLM:
 ```
 //TODO
-    ```
-
-
-
+```
 
 
 ## 4. Project Results
-The following table shows the obtained final accuracies on the validation set for each pipeline.
+The following table shows the obtained final accuracies on the ```validation set``` for each pipeline.
 
-| Model                              | Accuracy(\%) |
-|------------------------------------|--------------|
-| Example1                           | 80.23        |
-| Example 2                          | **92.04**    |
+| Model                              | Accuracy (\%) | Std (\%) |
+|------------------------------------|---------------|----------|
+| BoW + Logistic Regressor           | 80.66         |   1.8    |
+| BoW + Support Vector Machine       | 80.59         |   2.0    |
+| BoW + Ridge Classifier             | 80.46         |   1.2    |
+| BoW + SGD Classifier               | 80.18         |   2.2    |
+| BoW + Extra Trees                  | 81.58         |   1.1    |
+| BoW + Multi Layer Perceptron       | 79.56         |   3.1    |
+| GloVe + Logistic Regressor         | 78.70         |   1.6    |
+| GloVe + Support Vector Machine     | 78.96         |   2.0    |
+| GloVe + Ridge Classifier           | 78.68         |   1.5    |
+| GloVe + SGD Classifier             | 78.20         |   2.5    |
+| GloVe + Extra Trees                | 78.58         |   1.0    |
+| GloVe + Multi Layer Perceptron     | 81.02         |   3.4    |
+| FastText Classifier                | **86.21**     |   1.3    |
 
-Final remarks ...
+
+Final remarks:
+- //TODO: cpu specs for training sklearn classifiers and fasttext
+- //TODO_ gpu specs for training of CNN, RNN and LLM
 
