@@ -56,6 +56,20 @@ Create a virtual environment and install project's dependencies by running:
 ```
 pip install -r requirements.txt
 ```
+In the project ```root``` folder create a folder data and two subfolders: ```raw``` and ```processed```.
+Download into the raw subfolder the data from [here](https://www.kaggle.com/competitions/ethz-cil-text-classification-2024/data):
+
+```
+root
+  └── data
+        ├── processed
+        └── raw
+             ├── test_data.txt
+             ├── train_neg_full.txt
+             ├── train_neg.txt
+             ├── train_pos_full.txt
+             └──  train_pos.txt
+```
 
 ## 4. Project Pipeline
 From the project ```root``` folder, preprocess the raw training and test data by running:
