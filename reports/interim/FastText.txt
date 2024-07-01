@@ -1,0 +1,7 @@
+Dataset: Full
+preprocessing pipeline: policy_5
+
+Trials: 3
+Accuracy: 0.8621
+Std:0.0130
+Elapsed time: 0:05:00.000000

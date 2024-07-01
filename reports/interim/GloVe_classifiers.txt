@@ -1,0 +1,31 @@
+Dataset: Full
+preprocessing pipeline: policy_5
+########       Logistic Regression       ########
+Elapsed time: 0:00:03.697749
+Accuracy: 0.7870
+Std: 0.0016
+
+########       Support Vector Machine       ########
+Elapsed time: 0:00:14.117179
+Accuracy: 0.7896
+Std: 0.0020
+
+########       Ridge Classifier       ########
+Elapsed time: 0:00:00.922101
+Accuracy: 0.7868
+Std: 0.0015
+
+########       SGD Classifier       ########
+Elapsed time: 0:00:02.682760
+Accuracy: 0.7820
+Std: 0.0025
+
+########       Extra Trees       ########
+Elapsed time: 0:02:22.665660
+Accuracy: 0.7858
+Std: 0.0010
+
+########       Multi Layer Perceptron       ########
+Elapsed time: 0:03:50.101728
+Accuracy: 0.8102
+Std: 0.0034
