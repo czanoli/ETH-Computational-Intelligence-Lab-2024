@@ -1,0 +1,26 @@
+--------------------------------------- BoW
+--------------------------------------- Classifiers default hparams
+--------------------------------------- train (policy5)
+########       Logistic Regression       ########
+Elapsed time: 0:00:20.724695
+Accuracy: 0.8066
+
+########       Support Vector Machine       ########
+Elapsed time: 0:03:42.731522
+Accuracy: 0.8059
+
+########       Ridge Classifier       ########
+Elapsed time: 0:00:26.666016
+Accuracy: 0.8046
+
+########       SGD Classifier       ########
+Elapsed time: 0:00:08.198452
+Accuracy: 0.8018
+
+########       Extra Trees       ########
+Elapsed time: 0:27:05.031810
+Accuracy: 0.8158
+
+########       Multi Layer Perceptron       ########
+Elapsed time: 0:46:36.706985
+Acuracy: 0.7956

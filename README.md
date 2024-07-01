@@ -57,13 +57,37 @@ We will be using ```make``` as a task runner (i.e. for setting up the virtual en
 ## 4. Project Pipeline
 Install project's dependencies by running:
 ```
-make requirements
+pip install -r requirements.txt
 ```
-From the project root folder, preprocess the raw training data by running:
+From the project root folder, preprocess the raw training and test data by running:
 ```
-make training_data
+python src/data/preprocess_data.py
 ```
-The pre-processed training data will be saved in ```data/processed```
+The pre-processed training and test data will be saved in ```data/processed```
+
+### Embedding (BoW, GloVe) + Classifiers Pipeline
+To run the BoW + Classifiers pipeline run:
+```
+python //TODO
+```
+To run the BoW + Classifiers pipele with hyper-parameterstuning through GirdSearchCV run:
+```
+python //TODO
+```
+Please note that the hyperparameters tuning requires few days tobe completed.
+To run the GloVe + Classifiers pipeline run:
+```
+python //TODO
+```
+To run the GloVe + Classifiers pipeline with hyper-parameterstuning through GirdSearchCV run:
+```
+python //TODO
+```
+
+All these commands will save the final best model in the models directory of the root project folder.
+
+To make pedictions run:
+./fasttext predict src/models/fasttext_model data/processed/test.txt > results/predictions.txt
 
 ## 4. Project Results
 
