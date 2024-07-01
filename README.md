@@ -133,7 +133,7 @@ python src/models/predict.py --model models/classifiers.pkl --data data/processe
 ```
 - FastText (from root folder of the project):
 ```
-src/models/fastText-0.9.2/fasttext predict models/fasttext_model data/processed/fasttext_test.txt > results/fasttext_predictions.txt
+python src/models/predict.py --model models/fasttext_model.bin --data data/processed/test.csv --method fastText
 ```
 - CNN:
 ```
