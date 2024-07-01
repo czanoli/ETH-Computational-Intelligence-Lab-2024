@@ -19,8 +19,6 @@ import warnings
 import logging
 import yaml
 from pathlib import Path
-import subprocess
-import os
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 logger = logging.getLogger(__name__)
@@ -41,8 +39,8 @@ models = [
     LinearSVC(random_state=RANDOM_STATE),
     RidgeClassifier(random_state=RANDOM_STATE),
     SGDClassifier(random_state=RANDOM_STATE),
-    ExtraTreesClassifier(random_state=RANDOM_STATE),
-    MLPClassifier(verbose=False, random_state=RANDOM_STATE),
+    #ExtraTreesClassifier(random_state=RANDOM_STATE),
+    #MLPClassifier(verbose=False, random_state=RANDOM_STATE),
 ]
 MODEL_NAMES = config['models_names']
 MODEL_HPARAMS = config['models_hparams']
@@ -113,10 +111,10 @@ def train_fasttext(input_path):
         train_df = pd.concat([X_train, y_train], axis=1)
         val_df = pd.concat([X_val, y_val], axis=1)
         logger.info("Formatting training set...")
-        #create_fasttext_format(train_df, XTRAIN_PATH)
+        create_fasttext_format(train_df, XTRAIN_PATH)
         logger.info("Training set formatted.")
         logger.info("Formatting validation set...")
-        #create_fasttext_format(val_df, XVAL_PATH)
+        create_fasttext_format(val_df, XVAL_PATH)
         logger.info("Validation set formatted.")
         logger.info(
             "To start FastText training run the following command:\n"
@@ -141,7 +139,7 @@ def train_fasttext(input_path):
     except Exception as e:
         logger.error(f"Error during FastText training: {e}")
 
-def train_classifiers(input_path, embedding, hparams_tuning):
+def train_classifiers(input_path, method, embedding, hparams_tuning):
     logger.info('Loading training data...')
     df = pd.read_csv(input_path)
     df = df.sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
@@ -163,6 +161,9 @@ def train_classifiers(input_path, embedding, hparams_tuning):
             X_train = vectorizer.fit_transform(X_train)
             X_val = vectorizer.transform(X_val)
             logger.info('[BoW]: X_train and X_val vectorized.')
+            logger.info('[BoW]: Saving vectorizer for X_test...')
+            joblib.dump(vectorizer, OUTPUT_PATH + "count_vectorizer.pkl")
+            logger.info('[BoW]: Vectorizer saved.')
 
         elif embedding == GLOVE:
             logger.info('[GloVe]: Loading GloVe embeddings...')
@@ -178,6 +179,9 @@ def train_classifiers(input_path, embedding, hparams_tuning):
             vectorizer = CountVectorizer(max_features=5000)
             X = vectorizer.fit_transform(X)
             logger.info('[BoW]: X vectorized.')
+            logger.info('[BoW]: Saving vectorizer for X_test...')
+            joblib.dump(vectorizer, OUTPUT_PATH + "count_vectorizer.pkl")
+            logger.info('[BoW]: Vectorizer saved.')
         elif embedding == GLOVE:
             logger.info('[GloVe]: Loading GloVe embeddings...')
             glove_embeddings = load_glove_embeddings(GLOVE_PATH)
@@ -238,8 +242,9 @@ def train_classifiers(input_path, embedding, hparams_tuning):
     best_model.fit(X, y)
     logger.info("Final training completed.")
     logger.info("Saving model...")
-    joblib.dump(best_model, OUTPUT_PATH)
-    logger.info(f"Model saved at {OUTPUT_PATH}")
+    file_path = OUTPUT_PATH + f"{method}.pkl"
+    joblib.dump(best_model, file_path)
+    logger.info(f"Model saved at {file_path}")
 
 
 def validate_hparams_tuning(ctx, param, value):
@@ -263,7 +268,7 @@ def main(input_path, method, embedding, hparams_tuning):
     logging.basicConfig(level=logging.INFO, format=log_fmt)
     
     if method == "classifiers":
-        train_classifiers(input_path, embedding, hparams_tuning)
+        train_classifiers(input_path, method, embedding, hparams_tuning)
     if method == "fastText":
         train_fasttext(input_path)
 

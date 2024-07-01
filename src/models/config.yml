@@ -10,6 +10,7 @@ fasttext:
   xtrain_path: "data/processed/fasttext_train.txt"
   xval_path: "data/processed/fasttext_val.txt"
   xfull_path: "data/processed/fasttext_full.txt"
+  xtest_path: "data/processed/fasttext_test.txt"
   hparams_path: "src/models/fasttext_hparams.yml"
 
 
@@ -42,4 +43,6 @@ models_hparams:
     solver: ['adam']
     alpha: [0.001, 0.01, 1]
 
-OUTPUT_PATH: "models/model.pkl"
+OUTPUT_PATH: "models/"
+VECTORIZER_PATH: "models/count_vectorizer.pkl"
+RESULTS_PATH: "results/"
