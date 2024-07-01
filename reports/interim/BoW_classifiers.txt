@@ -3,7 +3,7 @@ preprocessing pipeline: policy_5
 ########       Logistic Regression       ########
 Elapsed time: 0:00:20.724695
 Accuracy: 0.8066
-Std: 0.0018
+Std: 0.0005
 
 ########       Support Vector Machine       ########
 Elapsed time: 0:03:42.731522

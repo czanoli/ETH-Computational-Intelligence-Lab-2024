@@ -147,7 +147,7 @@ The following table shows the obtained final accuracies on the ```validation set
 
 | Model                              | Accuracy (\%) | Std (\%) |
 |------------------------------------|---------------|----------|
-| BoW + Logistic Regressor           | 80.66         |   1.8    |
+| BoW + Logistic Regressor           | 80.66         |   0.05   |
 | BoW + Support Vector Machine       | 80.59         |   2.0    |
 | BoW + Ridge Classifier             | 80.46         |   1.2    |
 | BoW + SGD Classifier               | 80.18         |   2.2    |
