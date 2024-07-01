@@ -1,5 +1,5 @@
 # full or small
-train_dataset_type: "small"
+train_dataset_type: "full"
 
 # drop or keep
 shared_duplicates_policy: "drop"
@@ -108,7 +108,7 @@ preprocessing_policy_5:
   de_emojze: True
   de_emoticonize: True
   hastag_handling: True
-  handle_punctuation: True
+  handle_punctuation: False
   replace_slang: False
   correct_spelling: False
   remove_stopwords: False
