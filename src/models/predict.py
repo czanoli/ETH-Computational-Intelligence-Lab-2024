@@ -93,7 +93,7 @@ def predict_classifiers(model_path, datapath, method, embedding):
     # Print the first few rows of the final DataFrame
     print(df_final.head())
     
-def predict_fasttext(datapath):
+def predict_fasttext(modelpath, datapath):
     df_test = pd.read_csv(datapath)
     logger.info("Formatting training set...")
     create_fasttext_format(df_test, XTEST_PATH, is_test=True)
@@ -101,7 +101,7 @@ def predict_fasttext(datapath):
     
     try:
         logger.info('Making predictions...')
-        fasttext_command = fasttext_command = "src/models/fastText-0.9.2/fasttext predict models/fasttext_model data/processed/fasttext_test.txt > results/fasttext_predictions.txt"
+        fasttext_command = fasttext_command = f"src/models/fastText-0.9.2/fasttext predict {modelpath} {XTEST_PATH} > results/fasttext_predictions.txt"
         subprocess.run(fasttext_command, shell=True, check=True, text=True, capture_output=True)
         logger.info('Predictions saved at results/fasttext_predictions.txt')
     except subprocess.CalledProcessError as e:
@@ -122,7 +122,7 @@ def main(model_path, data_path, method, embedding):
     if method == "classifiers":
         predict_classifiers(model_path, data_path, method, embedding)
     if method == "fastText":
-        predict_fasttext()
+        predict_fasttext(model_path, data_path)
 
 if __name__ == "__main__":
     main()
