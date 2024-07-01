@@ -36,6 +36,13 @@ requirements:
 data:
 	$(PYTHON_INTERPRETER) src/data/preprocess_data.py
 
+## Run training
+train:
+	$(PYTHON_INTERPRETER) src/models/train.py $(filter-out $@,$(MAKECMDGOALS))
+
+%:
+	@:
+
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete

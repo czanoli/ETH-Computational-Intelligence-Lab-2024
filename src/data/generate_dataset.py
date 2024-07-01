@@ -207,22 +207,22 @@ class DataProcessor:
                     - replace 'ahahaha' with 'laugh'
                     - replace 'xoxo' with 'kiss'
                     '''
-            # 10.1 - put in lower case
-            tweet = tweet.lower()
-            # 10.2 - remove retweet symbol 'rt'
-            tweet = re.sub(r'\brt\b', '', tweet)
-            # 10.3 - keep only letters and blank spaces
-            tweet = re.sub(r'[^a-zA-Z\s]', '', tweet)
-            # 10.4 - remove extra blank spaces
-            tweet = re.sub(r'\s+', ' ', tweet).strip()
-            # 10.5 - remove single letter (mostly errors or 'I' which are not useful)
-            tweet = re.sub(r'\b\w\b', '', tweet)
-            # 10.6 - reduce repeated letters at the end of the word
-            tweet = re.sub(r'(\w*?)(\w)(?![ls])\2{1,}', r'\1\2', tweet)
-            # 10.7 - replace 'ahahahah' and similar with 'laugh'
-            tweet = re.sub(r'\b(?:[ah]*h[ah]*){2,}\b', 'laugh', tweet)
-            # 10.8 - replace 'xoxo' and similar with 'kiss'
-            tweet = re.sub(r'\b(xo)+x?\b', 'kiss', tweet)
+            # 10.1 - remove retweet symbol 'rt' NO BECAUSE THE TEST SET CONTAIN A TWEET WITH ONLY: rt <user> <user>
+            #tweet = re.sub(r'\brt\b', '', tweet)
+            # 10.2 - keep only letters, numbers, rt and specific symbols
+            pattern = r'[^a-zA-Z0-9\(\)rt\?!\s]'
+            tweet = re.sub(pattern, '', tweet)
+            #tweet = re.sub(r'[^a-zA-Z\s]', '', tweet)
+            # 10.3 - remove extra blank spaces
+            #tweet = re.sub(r'\s+', ' ', tweet).strip()
+            # 10.4 - remove single letter (mostly errors or 'I' which are not useful)
+            #tweet = re.sub(r'\b\w\b', '', tweet)
+            # 10.5 - reduce repeated letters at the end of the word
+            #tweet = re.sub(r'(\w*?)(\w)(?![ls])\2{1,}', r'\1\2', tweet)
+            # 10.6 - replace 'ahahahah' and similar with 'laugh'
+            #tweet = re.sub(r'\b(?:[ah]*h[ah]*){2,}\b', 'laugh', tweet)
+            # 10.7 - replace 'xoxo' and similar with 'kiss'
+            #tweet = re.sub(r'\b(xo)+x?\b', 'kiss', tweet)
             return tweet
         if self.preprocessing_policy.get("handle_punctuation"):
             df['tweet'] = df['tweet'].apply(lambda x: remove_punctuation_symbols_digits_spaces(x))
