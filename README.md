@@ -51,21 +51,19 @@ The goal of the project is to ... //TODO
             └── visualize.py
 
 ## 3. Project Setup
-We will be using ```make``` as a task runner (i.e. for setting up the virtual environment, creating the pre-processed dataset, initiating the training, etc...). [GNU Make](https://www.gnu.org/software/make/) is typically pre-installed on Linux and macOS systems. If you are using Windows, you may need to install Make. See the [Installing Make on Windows](https://cookiecutter-data-science.drivendata.org/using-the-template/#installing-make-on-windows) for further information.
-
-
-## 4. Project Pipeline
 Create a virtual environment and install project's dependencies by running:
 ```
 pip install -r requirements.txt
 ```
-From the project root folder, preprocess the raw training and test data by running:
+
+## 4. Project Pipeline
+From the project ```root``` folder, preprocess the raw training and test data by running:
 ```
 python src/data/preprocess_data.py
 ```
 The pre-processed training and test data will be saved in ```data/processed``` as ```train.csv``` and ```test.csv```
 
-From the project root folder, download the GloVe embeddings and the FastText source code  by running:
+From the project ```root``` folder, download the GloVe embeddings and the FastText source code  by running:
 ```
 python src/models/download_glove_fasttext.py
 ```
@@ -77,28 +75,28 @@ make
 ```
 
 ### Embedding (BoW, GloVe) + Classifiers training Pipeline
-- To run the BoW + Classifiers pipeline run (from root folder of the project):
+- To run the BoW + Classifiers pipeline run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning False
     ```
-- To run the BoW + Classifiers pipele with hyper-parameterstuning through GirdSearchCV run (from root folder of the project):
+- To run the BoW + Classifiers pipele with hyper-parameterstuning through GirdSearchCV run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning True
     ```
     ⚠️ Please note that hyper-parameters tuning requires a few days to be completed.
 
 
-- To run the GloVe + Classifiers pipeline run (from root folder of the project):
+- To run the GloVe + Classifiers pipeline run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning False
     ```
-- To run the GloVe + Classifiers pipeline with hyper-parameterstuning through GirdSearchCV run (from root folder of the project):
+- To run the GloVe + Classifiers pipeline with hyper-parameterstuning through GirdSearchCV run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning True
     ```
     ⚠️ Please note that hyper-parameters tuning requires a few days to be completed.
 
-The final best model will be saved in the ```models``` folder of the root of the project.
+The final best model will be saved in the ```models``` folder of the ```root``` of the project.
 
 ### FastText Training Pipeline
 From ```root``` folder of the project run:
@@ -114,7 +112,7 @@ This will start the training with hyper-parameters tuning and it will last 5 min
 
 To make pedictions run:
 ```
-./fasttext predict src/models/fasttext_model data/processed/test.txt > results/predictions.txt
+python src/models/predict.py --model models/fasttext_model.bin --data data/processed/test.csv --method fastText
 ```
 
 ### CNN Training Pipeline
