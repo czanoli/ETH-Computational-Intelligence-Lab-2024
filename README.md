@@ -109,12 +109,6 @@ src/models/fastText-0.9.2/fasttext supervised -input data/processed/fasttext_tra
 ```
 This will start the training with hyper-parameters tuning and it will last 5 minutes. Then it will perform the final training with the best set of hyperparameters-found. The validation set accuracy is displayed next to "Best Score:".
 
-
-To make pedictions run:
-```
-python src/models/predict.py --model models/fasttext_model.bin --data data/processed/test.csv --method fastText
-```
-
 ### CNN Training Pipeline
 //TODO
 
