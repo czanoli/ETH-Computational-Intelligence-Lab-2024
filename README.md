@@ -100,7 +100,6 @@ make
     ```
     ⚠️ Please note that hyper-parameters tuning requires a few days to be completed.
 
-
 - To run the GloVe + Classifiers pipeline run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning False
@@ -110,6 +109,8 @@ make
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning True
     ```
     ⚠️ Please note that hyper-parameters tuning requires a few days to be completed.
+
+    ⚠️ We observed that, depending on the platform running the code, the process of the pipeline using GloVe embeddings might be internally killed by the system due to very high memory usage. If you experience such issue, please consider using the small version of the training set by setting the ```train_dataset_type``` flag in ```src/data/config.yml``` file to ```small``` or use GloVe embeddings with fewer dimensions, for example 25, by setting the flag ```GLOVE_VECTOR_SIZE``` to ```25``` and glove_path to ```src/models/glove.twitter.27B/glove.twitter.27B.25d.txt``` in ```src/models/config.yml```.
 
 The final best model will be saved in the ```models``` folder of the ```root``` of the project.
 
@@ -157,23 +158,23 @@ python src/models/predict.py --model models/fasttext_model.bin --data data/proce
 
 
 ## 4. Project Results
-The following table shows the obtained final accuracies on the ```validation set``` for each pipeline.
+The following table shows the obtained final mean accuracy and standard deviation of the ```best model``` for each pipeline using ```K-fold cross validation``` (k=5) through ```GridSearchCV```.
 
 | Model                              | Accuracy (\%) | Std (\%) |
 |------------------------------------|---------------|----------|
-| BoW + Logistic Regressor           | 80.66         |   0.05   |
-| BoW + Support Vector Machine       | 80.59         |   2.0    |
-| BoW + Ridge Classifier             | 80.46         |   1.2    |
-| BoW + SGD Classifier               | 80.18         |   2.2    |
-| BoW + Extra Trees                  | 81.58         |   1.1    |
-| BoW + Multi Layer Perceptron       | 79.56         |   3.1    |
-| GloVe + Logistic Regressor         | 78.70         |   1.6    |
-| GloVe + Support Vector Machine     | 78.96         |   2.0    |
-| GloVe + Ridge Classifier           | 78.68         |   1.5    |
-| GloVe + SGD Classifier             | 78.20         |   2.5    |
-| GloVe + Extra Trees                | 78.58         |   1.0    |
-| GloVe + Multi Layer Perceptron     | 81.02         |   3.4    |
-| FastText Classifier                | **86.21**     |   1.3    |
+| BoW + Logistic Regressor           | 80.60         |   0.05   |
+| BoW + Support Vector Machine       | 80.59         |   0.18   |
+| BoW + Ridge Classifier             | 80.46         |   0.17   |
+| BoW + SGD Classifier               | 80.18         |   0.20   |
+| BoW + Extra Trees                  | 81.58         |   0.27   |
+| BoW + Multi Layer Perceptron       | 79.56         |   0.31   |
+| GloVe + Logistic Regressor         | 78.70         |   0.26   |
+| GloVe + Support Vector Machine     | 78.96         |   0.26   |
+| GloVe + Ridge Classifier           | 78.68         |   0.26   |
+| GloVe + SGD Classifier             | 78.20         |   0.23   |
+| GloVe + Extra Trees                | 78.58         |   0.30   |
+| GloVe + Multi Layer Perceptron     | 81.02         |   0.36   |
+| FastText Classifier                | **86.21**     |   0.13   |
 
 
 Final remarks:
