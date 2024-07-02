@@ -19,6 +19,7 @@ import warnings
 import logging
 import yaml
 from pathlib import Path
+import fulltwitterrobertabasesentimentlatest
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 logger = logging.getLogger(__name__)
@@ -294,6 +295,8 @@ def main(input_path, method, embedding, hparams_tuning):
         train_classifiers(input_path, method, embedding, hparams_tuning)
     if method == "fastText":
         train_fasttext(input_path)
+    if method == "twitter-roberta-base-sentiment-latest":
+        fulltwitterrobertabasesentimentlatest.execute(input_path)
 
 if __name__ == "__main__":
     main()
