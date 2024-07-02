@@ -282,7 +282,7 @@ def validate_hparams_tuning(ctx, param, value):
 
 @click.command()
 @click.option('--input', 'input_path', type=str, required=True, help='Path to the training data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN']), required=True, help='Method to use for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest']), required=True, help='Method to use for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to use if method is classifiers')
 @click.option('--hparams_tuning', type=bool, callback=validate_hparams_tuning, required=False, help='Whether to use GridSearch K-fold cross-validation for hyper-parameters tuning')
 def main(input_path, method, embedding, hparams_tuning):
