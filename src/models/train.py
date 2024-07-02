@@ -26,6 +26,10 @@ logger = logging.getLogger(__name__)
 # Load config
 with open(Path(__file__).resolve().parent/'config.yml', 'r') as ymlfile:
     config = yaml.safe_load(ymlfile)
+    
+for hps in config['models_hparams_']:
+    if 'hidden_layer_sizes' in hps:
+        hps['hidden_layer_sizes'] = [tuple(size) for size in hps['hidden_layer_sizes']]
 
 RANDOM_STATE = config['random_state']
 GLOVE_PATH = config['glove_path']
@@ -50,6 +54,7 @@ XVAL_PATH = config['fasttext']['xval_path']
 X_PATH = config['fasttext']['xfull_path']
 FASTTEXT_HPARAMS_PATH = config['fasttext']['hparams_path']
 FASTTEXT_PATH = config['fasttext']['folder_path']
+GLOVE_VECTOR_SIZE = config['GLOVE_VECTOR_SIZE']
 
             
 def load_glove_embeddings(file_path):
@@ -62,7 +67,7 @@ def load_glove_embeddings(file_path):
             embeddings_index[word] = coefs
     return embeddings_index
 
-def tweet_to_glove_vector(tweet, embeddings, vector_size=200):
+def tweet_to_glove_vector(tweet, embeddings, vector_size=GLOVE_VECTOR_SIZE):
     words = tweet.lower().split()
     tweet_vec = np.zeros(vector_size)
     count = 0
@@ -137,6 +142,23 @@ def train_fasttext(input_path):
     except Exception as e:
         logger.error(f"Error during FastText training: {e}")
 
+def batch_generator(file_path, batch_size):
+    for chunk in pd.read_csv(file_path, chunksize=batch_size):
+        chunk = chunk.dropna(subset=['tweet'])
+        yield chunk
+        
+def process_batches(file_path, glove_embeddings, batch_size=20000):
+    X = []
+    y = []
+    for chunk in batch_generator(file_path, batch_size):
+        tweets = chunk['tweet'].tolist()
+        labels = chunk['label'].tolist()
+        
+        X.extend([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in tweets])
+        y.extend(labels)
+        
+    return np.array(X), np.array(y)
+                                 
 def train_classifiers(input_path, method, embedding, hparams_tuning):
     logger.info('Loading training data...')
     df = pd.read_csv(input_path)
@@ -186,6 +208,9 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
             logger.info('[GloVe]: GloVe embeddings loaded.')
             logger.info('[GloVe]: Vectorizing X...')
             X = np.array([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in X])
+            #logger.info('[GloVe]: Vectorizing data in batches...')
+            #X, y = process_batches(input_path, glove_embeddings)
+            #logger.info('[GloVe]: Data vectorized.')
             logger.info('[GloVe]: X vectorized.')
 
     if hparams_tuning:
