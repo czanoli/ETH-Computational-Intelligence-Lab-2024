@@ -27,7 +27,11 @@ logger = logging.getLogger(__name__)
 with open(Path(__file__).resolve().parent/'config.yml', 'r') as ymlfile:
     config = yaml.safe_load(ymlfile)
     
-for hps in config['models_hparams_']:
+for hps in config['models_hparams']:
+    if 'hidden_layer_sizes' in hps:
+        hps['hidden_layer_sizes'] = [tuple(size) for size in hps['hidden_layer_sizes']]
+        
+for hps in config['best_hparams']:
     if 'hidden_layer_sizes' in hps:
         hps['hidden_layer_sizes'] = [tuple(size) for size in hps['hidden_layer_sizes']]
 
@@ -38,13 +42,21 @@ GLOVE = config['GLOVE']
 VAL_SIZE = config['VAL_SIZE']
 CV = config['CV']
 SCORING = config['SCORING']
+
 models = [
-    LogisticRegression(random_state=RANDOM_STATE),
-    LinearSVC(random_state=RANDOM_STATE),
-    RidgeClassifier(random_state=RANDOM_STATE),
-    SGDClassifier(random_state=RANDOM_STATE),
-    ExtraTreesClassifier(random_state=RANDOM_STATE),
-    MLPClassifier(verbose=False, random_state=RANDOM_STATE),
+    LogisticRegression(random_state=RANDOM_STATE, C=config['best_hparams'][0]['C'], 
+                       solver=config['best_hparams'][0]['solver']),
+    LinearSVC(random_state=RANDOM_STATE, C=config['best_hparams'][1]['C'], 
+              loss=config['best_hparams'][1]['loss']),
+    RidgeClassifier(random_state=RANDOM_STATE, alpha=config['best_hparams'][2]['alpha']),
+    SGDClassifier(random_state=RANDOM_STATE, loss=config['best_hparams'][3]['loss'], 
+                  alpha=config['best_hparams'][3]['alpha'], penalty=config['best_hparams'][3]['penalty']),
+    ExtraTreesClassifier(random_state=RANDOM_STATE, n_estimators=config['best_hparams'][4]['n_estimators'], 
+                         min_samples_split=config['best_hparams'][4]['min_samples_split'], 
+                         criterion=config['best_hparams'][4]['criterion']),
+    MLPClassifier(verbose=False, random_state=RANDOM_STATE, hidden_layer_sizes=config['best_hparams'][5]['hidden_layer_sizes'], 
+                  activation=config['best_hparams'][5]['activation'], solver=config['best_hparams'][5]['solver'], 
+                  alpha=config['best_hparams'][5]['alpha'])
 ]
 MODEL_NAMES = config['models_names']
 MODEL_HPARAMS = config['models_hparams']

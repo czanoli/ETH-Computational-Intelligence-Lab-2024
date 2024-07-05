@@ -158,6 +158,25 @@ python src/models/predict.py --model models/fasttext_model.bin --data data/proce
 
 
 ## 4. Project Results
+The following table shows the obtained final accuracy of the ```best model``` for each pipeline on the ```holdout validation set``` (10% of the training set). Models have been instantiated with the best hyper-parameters found through ```K-fold cross validation``` (```GridSearchCV```, k=5)
+
+| Model                              | Accuracy (\%) |
+|------------------------------------|---------------|
+| BoW + Logistic Regressor           | 80.69         |
+| BoW + Support Vector Machine       | 80.59         |
+| BoW + Ridge Classifier             | 80.47         |
+| BoW + SGD Classifier               | 80.18         |
+| BoW + Extra Trees                  | 81.58         |
+| BoW + Multi Layer Perceptron       | 79.56         |
+| GloVe + Logistic Regressor         | 78.70         |
+| GloVe + Support Vector Machine     | 78.96         |
+| GloVe + Ridge Classifier           | 78.68         |
+| GloVe + SGD Classifier             | 78.20         |
+| GloVe + Extra Trees                | 78.58         |
+| GloVe + Multi Layer Perceptron     | 81.02         |
+| FastText Classifier                | **86.21**     |
+
+<!--
 The following table shows the obtained final mean accuracy and standard deviation of the ```best model``` for each pipeline using ```K-fold cross validation``` (k=5) through ```GridSearchCV```.
 
 | Model                              | Accuracy (\%) | Std (\%) |
@@ -165,7 +184,7 @@ The following table shows the obtained final mean accuracy and standard deviatio
 | BoW + Logistic Regressor           | 80.60         |   0.05   |
 | BoW + Support Vector Machine       | 80.59         |   0.18   |
 | BoW + Ridge Classifier             | 80.46         |   0.17   |
-| BoW + SGD Classifier               | 80.18         |   0.20   |
+| BoW + SGD Classifier               | 80.18         |   1.52   |
 | BoW + Extra Trees                  | 81.58         |   0.27   |
 | BoW + Multi Layer Perceptron       | 79.56         |   0.31   |
 | GloVe + Logistic Regressor         | 78.70         |   0.26   |
@@ -175,7 +194,7 @@ The following table shows the obtained final mean accuracy and standard deviatio
 | GloVe + Extra Trees                | 78.58         |   0.30   |
 | GloVe + Multi Layer Perceptron     | 81.02         |   0.36   |
 | FastText Classifier                | **86.21**     |   0.13   |
-
+-->
 
 Final remarks:
 - //TODO: cpu specs for training sklearn classifiers and fasttext
