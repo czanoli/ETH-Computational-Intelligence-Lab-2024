@@ -1,12 +1,6 @@
 # full or small
 train_dataset_type: "full"
 
-# drop or keep
-shared_duplicates_policy: "drop"
-duplicates_policy: "drop"
-conflict_policy: "drop"
-hashtag_policy: "keep"
-
 raw_train_paths:
   full:
     - "data/raw/train_pos_full.txt"
@@ -20,27 +14,28 @@ raw_test_path: "data/raw/test_data.txt"
 processed_train_path: "data/processed/train.csv"
 processed_test_path: "data/processed/test.csv"
 
-# Pre-processing policy
-preprocessing_policy_1:
-  handle_null: True
-  handle_duplicates: True
-  handle_conflicting_tweets: True
-  lowercasing: True
-  tag_removal: True
-  whitespace_stripping: True
-  handle_contractions: True
-  de_emojze: True
+# Pre-processing policy RAW
+preprocessing_policy_raw:
+  name: "policy_raw"
+  handle_null: False
+  handle_duplicates: False
+  handle_conflicting_tweets: False
+  lowercasing: False
+  tag_removal: False
+  whitespace_stripping: False
+  handle_contractions: False
+  de_emojze: False
   de_emoticonize: False
-  hastag_handling: True
+  hastag_handling: False
   handle_punctuation: False
   replace_slang: False
   correct_spelling: False
   remove_stopwords: False
   lemmatization: False
 
-
-# Pre-processing policy
-preprocessing_policy_2:
+# Pre-processing policy RAW
+preprocessing_policy_total:
+  name: "policy_total"
   handle_null: True
   handle_duplicates: True
   handle_conflicting_tweets: True
@@ -52,52 +47,15 @@ preprocessing_policy_2:
   de_emoticonize: True
   hastag_handling: True
   handle_punctuation: True
-  replace_slang: False
-  correct_spelling: False
-  remove_stopwords: False
-  lemmatization: False
-
-
-# Pre-processing policy with keep hashatg
-preprocessing_policy_3:
-  handle_null: False
-  handle_duplicates: False
-  handle_conflicting_tweets: False
-  lowercasing: False
-  tag_removal: True
-  whitespace_stripping: False
-  handle_contractions: True
-  de_emojze: False
-  de_emoticonize: False
-  hastag_handling: True
-  handle_punctuation: True
-  replace_slang: False
-  correct_spelling: False
-  remove_stopwords: False
-  lemmatization: True
-
-# Pre-processing policy with drop hashatg
-preprocessing_policy_4:
-  handle_null: False
-  handle_duplicates: False
-  handle_conflicting_tweets: False
-  lowercasing: False
-  tag_removal: True
-  whitespace_stripping: False
-  handle_contractions: True
-  de_emojze: False
-  de_emoticonize: False
-  hastag_handling: True
-  handle_punctuation: True
-  replace_slang: False
-  correct_spelling: False
-  remove_stopwords: False
+  replace_slang: True
+  correct_spelling: True
+  remove_stopwords: True
   lemmatization: True
 
 
 # Pre-processing policy with keep hashatg (Buona: BoW 80.44% (SVC))
-preprocessing_policy_5:
-  name: "policy_5"
+preprocessing_policy_optimal:
+  name: "policy_optimal"
   handle_null: True
   handle_duplicates: False
   handle_conflicting_tweets: False
@@ -109,25 +67,6 @@ preprocessing_policy_5:
   de_emoticonize: True
   hastag_handling: True
   handle_punctuation: False
-  replace_slang: False
-  correct_spelling: False
-  remove_stopwords: False
-  lemmatization: False
-
-
-# Pre-processing policy with keep hashatg
-preprocessing_policy_6:
-  handle_null: True
-  handle_duplicates: True
-  handle_conflicting_tweets: True
-  lowercasing: True
-  tag_removal: True
-  whitespace_stripping: True
-  handle_contractions: True
-  de_emojze: True
-  de_emoticonize: True
-  hastag_handling: True
-  handle_punctuation: True
   replace_slang: False
   correct_spelling: False
   remove_stopwords: False

@@ -29,17 +29,12 @@ tqdm.pandas()
 
 
 class DataProcessor:
-    def __init__(self, duplicates_policy, shared_duplicates_policy, conflict_policy, 
-                 dataset_type, prj_dir, train_files, test_file, preprocessing_policy, hashtag_policy):
-        self.duplicates_policy = duplicates_policy
-        self.shared_duplicates_policy = shared_duplicates_policy
-        self.conflict_policy = conflict_policy
+    def __init__(self, dataset_type, prj_dir, train_files, test_file, preprocessing_policy):
         self.dataset_type = dataset_type
         self.prj_dir = prj_dir
         self.train_files = train_files
         self.test_file = test_file
         self.preprocessing_policy = preprocessing_policy
-        self.hashtag_policy = hashtag_policy
     
     def load_data(self, is_test=False):
         if is_test:

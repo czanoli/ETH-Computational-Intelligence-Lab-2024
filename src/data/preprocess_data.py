@@ -10,12 +10,8 @@ from generate_dataset import DataProcessor
 # Load configuration from config.yaml
 with open(Path(__file__).resolve().parent/'config.yml', 'r') as file:
     config = yaml.safe_load(file)
-preprocessing_policy = config['preprocessing_policy_5']
+preprocessing_policy = config['preprocessing_policy_optimal']
 train_dataset_type = config["train_dataset_type"]
-hashtag_policy = config["hashtag_policy"]
-duplicates_policy = config["duplicates_policy"]
-shared_duplicates_policy = config["shared_duplicates_policy"]
-conflict_policy = config["conflict_policy"]
 train_files = config['raw_train_paths']
 test_file = config['raw_test_path']
 processed_train_path = config['processed_train_path']
@@ -33,9 +29,7 @@ def main():
     
     logger.info('Creating DataProcessor instance ...')
     logger.info(f"Using pre-processing policy {preprocessing_policy['name']} ...")
-    data_processor = DataProcessor(duplicates_policy, shared_duplicates_policy, conflict_policy, 
-                                   train_dataset_type, project_dir, train_files, test_file,
-                                   preprocessing_policy, hashtag_policy)
+    data_processor = DataProcessor(train_dataset_type, project_dir, train_files, test_file, preprocessing_policy)
 
     logger.info('Loading training data ...')
     df = data_processor.load_data()
