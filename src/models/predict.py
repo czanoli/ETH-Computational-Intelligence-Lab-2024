@@ -6,6 +6,7 @@ import logging
 import yaml
 from pathlib import Path
 import subprocess
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 logger = logging.getLogger(__name__)
 
@@ -106,12 +107,18 @@ def predict_fasttext(modelpath, datapath):
         logger.info('Predictions saved at results/fasttext_predictions.txt')
     except subprocess.CalledProcessError as e:
         logger.error(f"Error during inference: {e.stderr}")
-    
+
+def predict_twitterrobertabasesentimentlatest(model_path, data_path):
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForSequenceClassification.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment-latest")
+    #TODO 
+
+
 
 @click.command()
 @click.option('--model', 'model_path', type=str, required=True, help='Path to the model')
 @click.option('--data', 'data_path', type=str, required=True, help='Path to the test data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN']), required=True, help='Method used for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN','twitter-roberta-base-sentiment-latest']), required=True, help='Method used for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to used if method is classifiers')
 def main(model_path, data_path, method, embedding):
     if method == 'classifiers' and not embedding:
@@ -123,6 +130,7 @@ def main(model_path, data_path, method, embedding):
         predict_classifiers(model_path, data_path, method, embedding)
     if method == "fastText":
         predict_fasttext(model_path, data_path)
-
+    if method == "twitter-roberta-base-sentiment-latest":
+        predict_twitterrobertabasesentimentlatest("models/finetuned-twitter-roberta-base-sentiment-latest", data_path)
 if __name__ == "__main__":
     main()
