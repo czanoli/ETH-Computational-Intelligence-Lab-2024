@@ -21,6 +21,7 @@ import yaml
 from pathlib import Path
 import fulltwitterrobertabasesentimentlatest
 import lora_roberta_large
+import fullbertweetbase
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 logger = logging.getLogger(__name__)
@@ -295,7 +296,7 @@ def validate_hparams_tuning(ctx, param, value):
 
 @click.command()
 @click.option('--input', 'input_path', type=str, required=True, help='Path to the training data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest','lora-roberta-large-sentiment-latest']), required=True, help='Method to use for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest','lora-roberta-large-sentiment-latest','bertweet-base']), required=True, help='Method to use for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to use if method is classifiers')
 @click.option('--hparams_tuning', type=bool, callback=validate_hparams_tuning, required=False, help='Whether to use GridSearch K-fold cross-validation for hyper-parameters tuning')
 @click.option('--validation', type=bool, required=False, help='On LLMs perform training with validation')
@@ -313,6 +314,8 @@ def main(input_path, method, embedding, hparams_tuning, validation=False):
         fulltwitterrobertabasesentimentlatest.execute(input_path, validation,config)
     if method == "lora-roberta-large-sentiment-latest":
         lora_roberta_large.execute(input_path,validation,config)
+    if method == "bertweet-base":
+        fullbertweetbase.execute(input_path,validation,config)
 
 if __name__ == "__main__":
     main()

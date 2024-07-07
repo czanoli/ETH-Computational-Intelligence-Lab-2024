@@ -77,3 +77,7 @@ models_roberta_base:
 models_lora_roberta_large:
   lr: 0.00001
   epochs: 4
+
+models_bertweet_base:
+  lr: 0.00001
+  epochs: 5

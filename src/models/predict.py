@@ -151,5 +151,7 @@ def main(model_path, data_path, method, embedding):
         predict_llms("models/finetuned-twitter-roberta-base-sentiment-latest", data_path)
     if method == "lora-roberta-large-sentiment-latest":
         predict_llms("models/lora-twitter-roberta-large-topic-sentiment-latest", data_path)
+    if method == "bertweet-base":
+        predict_llms("models/finetuned-bertweet-base", data_path)
 if __name__ == "__main__":
     main()
