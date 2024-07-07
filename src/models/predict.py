@@ -7,6 +7,8 @@ import yaml
 from pathlib import Path
 import subprocess
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
+from train_llms import CustomClassifier
 
 logger = logging.getLogger(__name__)
 
@@ -108,17 +110,32 @@ def predict_fasttext(modelpath, datapath):
     except subprocess.CalledProcessError as e:
         logger.error(f"Error during inference: {e.stderr}")
 
-def predict_twitterrobertabasesentimentlatest(model_path, data_path):
+def predict_llms(model_path, data_path):
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = AutoModelForSequenceClassification.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment-latest")
-    #TODO 
+    model = CustomClassifier.load(model_path)
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    model.to(device)
+    print("Using ", device)
+    df = pd.read_csv(data_path)
+    inputs = tokenizer(list(df['tweet']), return_tensors="pt", padding=True, truncation=True)
+    inputs = {key: value.to(device) for key, value in inputs.items()}
+    with torch.no_grad():
+        outputs = model(**inputs)
+    logits = outputs.logits
+    predictions = torch.where(outputs.logits <= 0.5, torch.tensor(-1), torch.tensor(1)).squeeze().cpu().numpy()
+    df_final = pd.DataFrame({
+        'id': range(1, len(predictions) + 1),
+        'prediction': predictions
+    })
+    df_final.to_csv('predictions.csv', index=False, sep=',')
+    print("Predictions saved to predictions.csv")
 
 
 
 @click.command()
-@click.option('--model', 'model_path', type=str, required=True, help='Path to the model')
+@click.option('--model', 'model_path', type=str, required=False, help='Path to the model')
 @click.option('--data', 'data_path', type=str, required=True, help='Path to the test data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN','twitter-roberta-base-sentiment-latest']), required=True, help='Method used for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN','twitter-roberta-base-sentiment-latest', 'lora-roberta-large-sentiment-latest']), required=True, help='Method used for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to used if method is classifiers')
 def main(model_path, data_path, method, embedding):
     if method == 'classifiers' and not embedding:
@@ -131,6 +148,8 @@ def main(model_path, data_path, method, embedding):
     if method == "fastText":
         predict_fasttext(model_path, data_path)
     if method == "twitter-roberta-base-sentiment-latest":
-        predict_twitterrobertabasesentimentlatest("models/finetuned-twitter-roberta-base-sentiment-latest", data_path)
+        predict_llms("models/finetuned-twitter-roberta-base-sentiment-latest", data_path)
+    if method == "lora-roberta-large-sentiment-latest":
+        predict_llms("models/lora-twitter-roberta-large-topic-sentiment-latest", data_path)
 if __name__ == "__main__":
     main()

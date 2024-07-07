@@ -20,6 +20,7 @@ import logging
 import yaml
 from pathlib import Path
 import fulltwitterrobertabasesentimentlatest
+import lora_roberta_large
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 logger = logging.getLogger(__name__)
@@ -294,10 +295,11 @@ def validate_hparams_tuning(ctx, param, value):
 
 @click.command()
 @click.option('--input', 'input_path', type=str, required=True, help='Path to the training data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest']), required=True, help='Method to use for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest','lora-roberta-large-sentiment-latest']), required=True, help='Method to use for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to use if method is classifiers')
 @click.option('--hparams_tuning', type=bool, callback=validate_hparams_tuning, required=False, help='Whether to use GridSearch K-fold cross-validation for hyper-parameters tuning')
-def main(input_path, method, embedding, hparams_tuning):
+@click.option('--validation', type=bool, required=False, help='On LLMs perform training with validation')
+def main(input_path, method, embedding, hparams_tuning, validation=False):
     if method == 'classifiers' and not embedding:
         raise click.UsageError("Argument --embedding is required when --method is 'classifiers'")
     log_fmt = '%(asctime)s - %(levelname)s - %(message)s'
@@ -308,7 +310,9 @@ def main(input_path, method, embedding, hparams_tuning):
     if method == "fastText":
         train_fasttext(input_path)
     if method == "twitter-roberta-base-sentiment-latest":
-        fulltwitterrobertabasesentimentlatest.execute(input_path)
+        fulltwitterrobertabasesentimentlatest.execute(input_path, validation,config)
+    if method == "lora-roberta-large-sentiment-latest":
+        lora_roberta_large.execute(input_path,validation,config)
 
 if __name__ == "__main__":
     main()
