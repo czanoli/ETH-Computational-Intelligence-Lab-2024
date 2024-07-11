@@ -8,21 +8,20 @@ from torch.utils.data import DataLoader
 import numpy as np
 import pandas as pd
 import click
+import yaml
+from pathlib import Path
 
 
 @click.command()
 @click.option('--model_path', type=str, required=True)
 @click.option('--data_path', type=str, required=True)
-@click.option('--adapter_path', type=str, required=False)
-def main(model_path, data_path, adapter_path=None):
+@click.option('--model_name', type=str, required=True)
+def main(model_path, data_path, model_name):
+    with open(Path(__file__).resolve().parent/'config.yml', 'r') as ymlfile:
+        config = yaml.safe_load(ymlfile)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = CustomClassifier.load(model_path)
+    model = CustomClassifier.load(model_path, config[model_name]).encoder_model
     print(model)
-    model = model.model if "bertweet" in model_path else model.model.roberta
-    if adapter_path is not None:
-        adapters.init(model)
-        model.load_adapter(adapter_path, set_active=True)
-        model.set_active_adapters('lora_adapter')
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
     model.eval()
@@ -31,7 +30,7 @@ def main(model_path, data_path, adapter_path=None):
     inputs = tokenizer(list(df['tweet'].astype(str)), return_tensors="pt", padding=True, truncation=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}
     dataset = TweetDataset(tweets=df['tweet'].tolist(), tokenizer=tokenizer)
-    loader = DataLoader(dataset, batch_size=1000, shuffle=False)
+    loader = DataLoader(dataset, batch_size=1024, shuffle=False)
       
     with torch.no_grad():
         embeddings = []

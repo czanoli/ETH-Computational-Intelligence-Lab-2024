@@ -74,13 +74,14 @@ models_roberta_base:
   lr: 0.00001
   epochs: 3
   lora: False
+  encoder : "roberta"
   isForClassification: True
 
 models_lora_roberta_large:
   lr: 0.00001
   epochs: 4
   lora: True
-  adapter : "roberta"
+  encoder : "roberta"
   isForClassification: True
   selfattn_lora: True
   intermediate_lora: True
@@ -94,13 +95,14 @@ models_bertweet_base:
   lr: 0.00001
   epochs: 3
   lora : False
+  encoder: ""
   isForClassification: False
 
 models_lora_bertweet_large:
   lr: 0.0001
   epochs: 4
   lora: True
-  adapter: ""
+  encoder: ""
   isForClassification: False
   selfattn_lora: True
   intermediate_lora: True
