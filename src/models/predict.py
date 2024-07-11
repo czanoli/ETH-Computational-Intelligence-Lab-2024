@@ -112,14 +112,9 @@ def predict_fasttext(modelpath, datapath):
     except subprocess.CalledProcessError as e:
         logger.error(f"Error during inference: {e.stderr}")
 
-def predict_llms(model_path, data_path,adapter_path=None):
+def predict_llms(model_path, data_path, configfile):
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = CustomClassifier.load(model_path)
-    if adapter_path is not None:
-        adapter_model = model.model if "bertweet" in adapter_path else model.model.roberta
-        adapters.init(adapter_model)
-        adapter_model.load_adapter(adapter_path, set_active=True)
-        adapter_model.set_active_adapters('lora_adapter')
+    model = CustomClassifier.load(model_path,configfile)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
     model.eval()
@@ -128,7 +123,7 @@ def predict_llms(model_path, data_path,adapter_path=None):
     inputs = tokenizer(list(df['tweet']), return_tensors="pt", padding=True, truncation=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}
     dataset = TweetDataset(tweets=df['tweet'].tolist(), tokenizer=tokenizer)
-    loader = DataLoader(dataset, batch_size=32, shuffle=False)
+    loader = DataLoader(dataset, batch_size=1024, shuffle=False)
       
     with torch.no_grad():
         predictions = []
@@ -163,13 +158,13 @@ def main(model_path, data_path, method, embedding):
     if method == "fastText":
         predict_fasttext(model_path, data_path)
     if method == "twitter-roberta-base-sentiment-latest":
-        predict_llms(model_path="models/finetuned-twitter-roberta-base-sentiment-latest", data_path=data_path)
+        predict_llms(model_path="models/finetuned-twitter-roberta-base-sentiment-latest", data_path=data_path, configfile=config['models_roberta_base'])
     if method == "lora-roberta-large-sentiment-latest":
-        predict_llms(model_path="models/lora-twitter-roberta-large-topic-sentiment-latest",adapter_path= "models/lora-twitter-roberta-large-topic-sentiment-latest/adapter",data_path=data_path)
+        predict_llms(model_path="models/lora-twitter-roberta-large-topic-sentiment-latest", data_path=data_path, configfile=config['models_lora_roberta_large'])
     if method == "bertweet-base":
-        predict_llms(model_path="models/finetuned-bertweet-base", data_path=data_path)
+        predict_llms(model_path="models/finetuned-bertweet-base", data_path=data_path, configfile=config['models_bertweet_base'])
     if method == "lora-bertweet-large":
-        predict_llms(model_path="models/lora-bertweet-large",adapter_path= "models/lora-bertweet-large/adapter",data_path=data_path)
+        predict_llms(model_path="models/lora-bertweet-large", data_path=data_path, configfile=config['models_lora_bertweet_large'])
     #if method == "ensemble-small":
         #TO DO
 if __name__ == "__main__":
