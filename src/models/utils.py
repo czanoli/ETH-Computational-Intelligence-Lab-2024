@@ -19,21 +19,21 @@ class CustomClassifier(nn.Module):
         self.model = model
         self.additional = classification_layer
         self.config = configfile
+        self.encoder_model = self.model
+        encoder_path = self.config['encoder']
+        if encoder_path != '':
+            attributes = encoder_path.split('.')
+            for attr in attributes:
+                self.encoder_model = getattr(self.encoder_model,attr)
         if self.config['lora']:
-            self.adapter_model = self.model
-            adapter_model_path = self.config['adapter']
-            if adapter_model_path != '':
-                attributes = adapter_model_path.split('.')
-                for attr in attributes:
-                    self.adapter_model = getattr(self.adapter_model,attr)
-            adapters.init(self.adapter_model)
+            adapters.init(self.encoder_model)
             if adapter_path is not None:
-                self.adapter_model.load_adapter(adapter_path)
+                self.encoder_model.load_adapter(adapter_path)
             else:
                 lora_config = LoRAConfig(selfattn_lora=self.config['selfattn_lora'], intermediate_lora=self.config['intermediate_lora'], output_lora=self.config['output_lora'], attn_matrices=self.config['attn_matrices'], r=self.config['r'], alpha=self.config['alpha'])
-                self.adapter_model.add_adapter('lora_adapter', config=lora_config)
-            self.adapter_model.set_active_adapters('lora_adapter')
-            self.adapter_model.train_adapter("lora_adapter")
+                self.encoder_model.add_adapter('lora_adapter', config=lora_config)
+            self.encoder_model.set_active_adapters('lora_adapter')
+            self.encoder_model.train_adapter("lora_adapter")
 
         
     def forward(self, input_ids = None, attention_mask=None, labels = None, token_type_ids= None ):
@@ -61,7 +61,7 @@ class CustomClassifier(nn.Module):
         self.model.save_pretrained(path)
         torch.save(self.additional, path + "/classification.pth")
         if self.config['lora']:
-            self.adapter_model.save_adapter(path + "/adapter", 'lora_adapter')
+            self.encoder_model.save_adapter(path + "/adapter", 'lora_adapter')
 
 
 def format_time(seconds):
