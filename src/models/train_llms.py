@@ -18,12 +18,12 @@ def train(train_path, model, tokenizer, lr = 2e-5,num_epochs=3, seed=42, validat
     df['label'] = df['label'].map({"positive": 1, "negative": 0}) 
     if validation:
         train_df, val_df = train_test_split(df, test_size=0.1, random_state=42)
-        val_dataset = TweetDataset(val_df['tweet'].tolist(), val_df['label'].tolist(), tokenizer)
+        val_dataset = TweetDataset(tweets=val_df['tweet'].tolist(), labels=val_df['label'].tolist(), tokenizer=tokenizer)
         val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
     else:
         train_df = df
     
-    train_dataset = TweetDataset(train_df['tweet'].tolist(), train_df['label'].tolist(), tokenizer)
+    train_dataset = TweetDataset(tweets=train_df['tweet'].tolist(), labels=train_df['label'].tolist(), tokenizer=tokenizer)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)  
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
