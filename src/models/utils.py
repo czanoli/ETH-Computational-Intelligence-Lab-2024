@@ -1,25 +1,39 @@
-
-import torch
-from transformers.modeling_outputs import TokenClassifierOutput
-import torch.nn as nn
 from transformers import AutoModelForSequenceClassification, AutoModel
-from datetime import timedelta
-import random
+from transformers.modeling_outputs import TokenClassifierOutput
 from torch.utils.data import Dataset
+from datetime import timedelta
+import torch.nn as nn
+import torch
+import random
 import numpy as np
 import os
 import shutil
 import adapters
+from adapters import LoRAConfig
 
 
 
 class CustomClassifier(nn.Module):
-    def __init__(self, model, classification_layer, configuration, adapter_config):
+    def __init__(self, model, classification_layer, configfile, adapter_path = None):
         super(CustomClassifier, self).__init__()
         self.model = model
         self.additional = classification_layer
-        self.configuration = configuration
-        self.adapter_config = adapter_config
+        self.config = configfile
+        if self.config['lora']:
+            self.adapter_model = self.model
+            adapter_model_path = self.config['adapter']
+            if adapter_model_path != '':
+                attributes = adapter_model_path.split('.')
+                for attr in attributes:
+                    self.adapter_model = getattr(self.adapter_model,attr)
+            adapters.init(self.adapter_model)
+            if adapter_path is not None:
+                self.adapter_model.load_adapter(adapter_path)
+            else:
+                lora_config = LoRAConfig(selfattn_lora=self.config['selfattn_lora'], intermediate_lora=self.config['intermediate_lora'], output_lora=self.config['output_lora'], attn_matrices=self.config['attn_matrices'], r=self.config['r'], alpha=self.config['alpha'])
+                self.adapter_model.add_adapter('lora_adapter', config=lora_config)
+            self.adapter_model.set_active_adapters('lora_adapter')
+            self.adapter_model.train_adapter("lora_adapter")
 
         
     def forward(self, input_ids = None, attention_mask=None, labels = None, token_type_ids= None ):
@@ -35,14 +49,19 @@ class CustomClassifier(nn.Module):
 
 
     @staticmethod
-    def load(path):
-        model = AutoModel.from_pretrained(path)
+    def load(path, configfile):
+        if configfile['isForClassification']:
+            model = AutoModelForSequenceClassification.from_pretrained(path)
+        else:
+            model = AutoModel.from_pretrained(path)
         additional = torch.load(path + "/classification.pth")
-        return CustomClassifier(model,additional)
+        return CustomClassifier(model, additional, configfile, path + "/adapter")
     
     def save(self,path):
         self.model.save_pretrained(path)
         torch.save(self.additional, path + "/classification.pth")
+        if self.config['lora']:
+            self.adapter_model.save_adapter(path + "/adapter", 'lora_adapter')
 
 
 def format_time(seconds):
