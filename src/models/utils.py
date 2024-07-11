@@ -9,6 +9,7 @@ from torch.utils.data import Dataset
 import numpy as np
 import os
 import shutil
+import adapters
 
 
 
@@ -18,8 +19,10 @@ class CustomClassifier(nn.Module):
         self.model = model
         self.additional = classification_layer
         
-    def forward(self, input_ids = None, attention_mask=None, labels = None ):
-        x = self.model(input_ids = input_ids, attention_mask = attention_mask)[0]
+    def forward(self, input_ids = None, attention_mask=None, labels = None, token_type_ids= None ):
+        x = self.model(input_ids = input_ids, attention_mask = attention_mask, token_type_ids= token_type_ids)[0]
+        if len(x.shape) == 3:
+            x = x[:,0,:]
         x = self.additional(x)
         x = torch.sigmoid(x)
         if labels is not None:
@@ -27,10 +30,14 @@ class CustomClassifier(nn.Module):
             return TokenClassifierOutput(logits=x,loss=loss)
         return TokenClassifierOutput(logits=x)
 
+
     @staticmethod
-    def load(path):
-        model = AutoModelForSequenceClassification.from_pretrained(path)
+    def load(path, adapter_path=None):
+        model = AutoModel.from_pretrained(path)
         additional = torch.load(path + "/classification.pth")
+        if adapter_path is not None:
+            adapters.init(model.roberta)
+            model.model.roberta.load_adapter(adapter_path, set_active=True)
         return CustomClassifier(model,additional)
     
     def save(self,path):
@@ -64,7 +71,7 @@ class CustomEnsemble(nn.Module):
             loss = torch.nn.functional.binary_cross_entropy(x.squeeze(), labels.float())
             return TokenClassifierOutput(logits=x,loss=loss)
         return TokenClassifierOutput(logits=x)
-
+    
     @staticmethod
     def load(path):
         models = []

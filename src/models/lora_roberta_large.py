@@ -6,7 +6,8 @@ import adapters
 import torch.nn as nn
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoConfig
 from transformers.modeling_outputs import TokenClassifierOutput
-from train_llms import train, CustomClassifier
+from train_llms import train
+from utils import *
 
 
 def execute(path, validation,configfile):
@@ -21,7 +22,7 @@ def execute(path, validation,configfile):
     model.model.roberta.add_adapter("lora_adapter", config=config)
     model.model.roberta.train_adapter("lora_adapter")
     model = train(path, model, tokenizer, lr = configfile['models_lora_roberta_large']['lr'], num_epochs=configfile['models_lora_roberta_large']['epochs'], validation=validation)
-    model.model.roberta.merge_adapter("lora_adapter")
     tokenizer.save_pretrained("models/lora-twitter-roberta-large-topic-sentiment-latest")
     model.save("models/lora-twitter-roberta-large-topic-sentiment-latest")
+    model.model.roberta.save_adapter("models/lora-twitter-roberta-large-topic-sentiment-latest/adapter", "lora_adapter")
 

@@ -47,7 +47,6 @@ def train(train_path, model, tokenizer, lr = 2e-5,num_epochs=3, seed=42, validat
             optimizer.step()
             lr_scheduler.step()
             optimizer.zero_grad()
-            optimizer.zero_grad()
             progress_bar.update(1)
         if validation:
             model.eval()

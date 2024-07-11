@@ -9,7 +9,7 @@ import subprocess
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 from train_llms import CustomClassifier
-
+import adapters
 logger = logging.getLogger(__name__)
 
 # Load config
@@ -110,18 +110,27 @@ def predict_fasttext(modelpath, datapath):
     except subprocess.CalledProcessError as e:
         logger.error(f"Error during inference: {e.stderr}")
 
-def predict_llms(model_path, data_path):
+def predict_llms(model_path, data_path,adapter_path=None):
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = CustomClassifier.load(model_path)
+    if adapter_path is not None:
+        if "bertweet" in adapter_path:
+            adapters.init(model.model)
+            model.model.load_adapter(adapter_path, set_active=True)
+            model.model.set_active_adapters('lora_adapter')
+        else:
+            adapters.init(model.model.roberta)
+            model.model.roberta.load_adapter(adapter_path, set_active=True)
+            model.model.roberta.set_active_adapters('lora_adapter')
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
+    model.eval()
     print("Using ", device)
     df = pd.read_csv(data_path)
     inputs = tokenizer(list(df['tweet']), return_tensors="pt", padding=True, truncation=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}
     with torch.no_grad():
         outputs = model(**inputs)
-    logits = outputs.logits
     predictions = torch.where(outputs.logits <= 0.5, torch.tensor(-1), torch.tensor(1)).squeeze().cpu().numpy()
     df_final = pd.DataFrame({
         'id': range(1, len(predictions) + 1),
@@ -135,7 +144,7 @@ def predict_llms(model_path, data_path):
 @click.command()
 @click.option('--model', 'model_path', type=str, required=False, help='Path to the model')
 @click.option('--data', 'data_path', type=str, required=True, help='Path to the test data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN','twitter-roberta-base-sentiment-latest', 'lora-roberta-large-sentiment-latest']), required=True, help='Method used for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN','twitter-roberta-base-sentiment-latest', 'lora-roberta-large-sentiment-latest','bertweet-base','lora-bertweet-large']), required=True, help='Method used for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to used if method is classifiers')
 def main(model_path, data_path, method, embedding):
     if method == 'classifiers' and not embedding:
@@ -148,10 +157,12 @@ def main(model_path, data_path, method, embedding):
     if method == "fastText":
         predict_fasttext(model_path, data_path)
     if method == "twitter-roberta-base-sentiment-latest":
-        predict_llms("models/finetuned-twitter-roberta-base-sentiment-latest", data_path)
+        predict_llms(model_path="models/finetuned-twitter-roberta-base-sentiment-latest", data_path=data_path)
     if method == "lora-roberta-large-sentiment-latest":
-        predict_llms("models/lora-twitter-roberta-large-topic-sentiment-latest", data_path)
+        predict_llms(model_path="models/lora-twitter-roberta-large-topic-sentiment-latest",adapter_path= "models/lora-twitter-roberta-large-topic-sentiment-latest/adapter",data_path=data_path)
     if method == "bertweet-base":
-        predict_llms("models/finetuned-bertweet-base", data_path)
+        predict_llms(model_path="models/finetuned-bertweet-base", data_path=data_path)
+    if method == "lora-bertweet-large":
+        predict_llms(model_path="models/lora-bertweet-large",adapter_path= "models/lora-bertweet-large/adapter",data_path=data_path)
 if __name__ == "__main__":
     main()
