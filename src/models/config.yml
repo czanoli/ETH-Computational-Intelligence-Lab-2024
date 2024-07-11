@@ -73,15 +73,38 @@ RESULTS_PATH: "results/"
 models_roberta_base:
   lr: 0.00001
   epochs: 3
+  lora: False
+  isForClassification: True
 
 models_lora_roberta_large:
   lr: 0.00001
   epochs: 4
+  lora: True
+  adapter : "roberta"
+  isForClassification: True
+  selfattn_lora: True
+  intermediate_lora: True
+  output_lora: True
+  attn_matrices: ['q','k','v']
+  r: 8
+  alpha: 16
+
 
 models_bertweet_base:
   lr: 0.00001
   epochs: 3
+  lora : False
+  isForClassification: False
 
 models_lora_bertweet_large:
   lr: 0.0001
   epochs: 4
+  lora: True
+  adapter: ""
+  isForClassification: False
+  selfattn_lora: True
+  intermediate_lora: True
+  output_lora: True
+  attn_matrices: ['q','k','v']
+  r: 8
+  alpha: 16
