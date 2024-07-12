@@ -24,18 +24,19 @@ import fulltwitterrobertabasesentimentlatest
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 logger = logging.getLogger(__name__)
 
-# Load config
+# Load configuration from config.yml
 with open(Path(__file__).resolve().parent/'config.yml', 'r') as ymlfile:
     config = yaml.safe_load(ymlfile)
-    
+
+# Process hidden_layer_sizes for MLPClassifier hyperparameters
 for hps in config['models_hparams']:
     if 'hidden_layer_sizes' in hps:
-        hps['hidden_layer_sizes'] = [tuple(size) for size in hps['hidden_layer_sizes']]
-        
+        hps['hidden_layer_sizes'] = [tuple(size) for size in hps['hidden_layer_sizes']]     
 for hps in config['best_hparams']:
     if 'hidden_layer_sizes' in hps:
         hps['hidden_layer_sizes'] = [tuple(size) for size in hps['hidden_layer_sizes']]
 
+# Set constants from config
 RANDOM_STATE = config['random_state']
 GLOVE_PATH = config['glove_path']
 BOW = config['BOW']
@@ -43,7 +44,15 @@ GLOVE = config['GLOVE']
 VAL_SIZE = config['VAL_SIZE']
 CV = config['CV']
 SCORING = config['SCORING']
+MODEL_NAMES = config['models_names']
+MODEL_HPARAMS = config['models_hparams']
+OUTPUT_PATH = config['OUTPUT_PATH']
+XTRAIN_PATH = config['fasttext']['xtrain_path']
+XVAL_PATH = config['fasttext']['xval_path']
+FASTTEXT_PATH = config['fasttext']['folder_path']
+GLOVE_VECTOR_SIZE = config['GLOVE_VECTOR_SIZE']
 
+# Define models with best hyperparameters
 models = [
     LogisticRegression(random_state=RANDOM_STATE, C=config['best_hparams'][0]['C'], 
                        solver=config['best_hparams'][0]['solver']),
@@ -59,18 +68,21 @@ models = [
                   activation=config['best_hparams'][5]['activation'], solver=config['best_hparams'][5]['solver'], 
                   alpha=config['best_hparams'][5]['alpha'])
 ]
-MODEL_NAMES = config['models_names']
-MODEL_HPARAMS = config['models_hparams']
-OUTPUT_PATH = config['OUTPUT_PATH']
-XTRAIN_PATH = config['fasttext']['xtrain_path']
-XVAL_PATH = config['fasttext']['xval_path']
-X_PATH = config['fasttext']['xfull_path']
-FASTTEXT_HPARAMS_PATH = config['fasttext']['hparams_path']
-FASTTEXT_PATH = config['fasttext']['folder_path']
-GLOVE_VECTOR_SIZE = config['GLOVE_VECTOR_SIZE']
-
-            
+      
 def load_glove_embeddings(file_path):
+    """
+    Load GloVe embeddings from a file and return a dictionary of word vectors.
+
+    Parameters
+    ----------
+    file_path : str
+        Path to the GloVe embeddings file.
+
+    Returns
+    -------
+    dict
+        Dictionary of word vectors.
+    """
     embeddings_index = {}
     with open(file_path, 'r', encoding='utf8') as f:
         for line in f:
@@ -81,6 +93,23 @@ def load_glove_embeddings(file_path):
     return embeddings_index
 
 def tweet_to_glove_vector(tweet, embeddings, vector_size=GLOVE_VECTOR_SIZE):
+    """
+    Convert a tweet to a GloVe vector by averaging the vectors of the words in the tweet.
+
+    Parameters
+    ----------
+    tweet : str
+        The tweet to convert.
+    embeddings : dict
+        Dictionary of word vectors.
+    vector_size : int, optional
+        Size of the word vectors, by default GLOVE_VECTOR_SIZE.
+
+    Returns
+    -------
+    np.ndarray
+        Averaged vector of the tweet.
+    """
     words = tweet.lower().split()
     tweet_vec = np.zeros(vector_size)
     count = 0
@@ -92,20 +121,19 @@ def tweet_to_glove_vector(tweet, embeddings, vector_size=GLOVE_VECTOR_SIZE):
         tweet_vec /= count
     return tweet_vec
 
-def save_best_hyperparameters(output):
-    best_params = {}
-    for line in output.split('\n'):
-        if line.startswith('-'):
-            key, value = line[1:].split(': ')
-            best_params[key] = value
-    with open(FASTTEXT_HPARAMS_PATH, 'w') as file:
-        yaml.dump(best_params, file)
-
-def load_hyperparameters():
-    with open(FASTTEXT_HPARAMS_PATH, 'r') as file:
-        return yaml.safe_load(file)
-
 def create_fasttext_format(df, file_path, is_test=False):
+    """
+    Create a text file in the FastText format from a DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The input DataFrame.
+    file_path : str
+        The path to the output file.
+    is_test : bool, optional
+        Flag indicating whether the file is for test data, by default False.
+    """
     with open(file_path, 'w', encoding='utf-8') as f:
         for _, row in df.iterrows():
             if is_test:
@@ -117,12 +145,18 @@ def create_fasttext_format(df, file_path, is_test=False):
                 f.write(f"{label} {tweet}\n")
                 
 def train_fasttext(input_path):
+    """
+    Train a FastText model using data from the specified input path.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input data file.
+    """
     df = pd.read_csv(input_path)
     df = df.dropna(subset=['tweet'])
-
     X = df['tweet']
     y = df['label']
-
 
     try:
         X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=VAL_SIZE, random_state=RANDOM_STATE)
@@ -138,41 +172,24 @@ def train_fasttext(input_path):
             "To start FastText training run:\n"
             ">> src/models/fastText-0.9.2/fasttext supervised -input data/processed/fasttext_train.txt -output models/fasttext_model -autotune-validation data/processed/fasttext_val.txt -verbose 2"
         )
-                
-                
-        #fasttext_command = f"{FASTTEXT_PATH}/fasttext supervised -input {XTRAIN_PATH} -output fasttext_model -autotune-validation {XVAL_PATH} -verbose 2"
-        '''
-        else:
-            logger.info("Formatting training data ...")
-            create_fasttext_format(df, X_PATH)
-            logger.info("Training data formatted.")
-            logger.info("Loading fastText hyper-parameters...")
-            best_params = load_hyperparameters()
-            logger.info("FastText hyper-parameters loaded.")
-            params = " ".join([f"-{key} {value}" for key, value in best_params.items()])
-            fasttext_command = f"{FASTTEXT_PATH}/fasttext supervised -input {X_PATH} -output fasttext_model {params} -verbose 2"
-        '''
     except Exception as e:
         logger.error(f"Error during FastText training: {e}")
-
-def batch_generator(file_path, batch_size):
-    for chunk in pd.read_csv(file_path, chunksize=batch_size):
-        chunk = chunk.dropna(subset=['tweet'])
-        yield chunk
-        
-def process_batches(file_path, glove_embeddings, batch_size=20000):
-    X = []
-    y = []
-    for chunk in batch_generator(file_path, batch_size):
-        tweets = chunk['tweet'].tolist()
-        labels = chunk['label'].tolist()
-        
-        X.extend([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in tweets])
-        y.extend(labels)
-        
-    return np.array(X), np.array(y)
                                  
 def train_classifiers(input_path, method, embedding, hparams_tuning):
+    """
+    Train classifiers using the specified method and embedding.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input data file.
+    method : str
+        Training method to use.
+    embedding : str
+        Embedding method to use.
+    hparams_tuning : bool
+        Whether to perform hyperparameter tuning.
+    """
     logger.info('Loading training data...')
     df = pd.read_csv(input_path)
     df = df.sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
@@ -221,9 +238,6 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
             logger.info('[GloVe]: GloVe embeddings loaded.')
             logger.info('[GloVe]: Vectorizing X...')
             X = np.array([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in X])
-            #logger.info('[GloVe]: Vectorizing data in batches...')
-            #X, y = process_batches(input_path, glove_embeddings)
-            #logger.info('[GloVe]: Data vectorized.')
             logger.info('[GloVe]: X vectorized.')
 
     if hparams_tuning:
@@ -241,15 +255,11 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
             estimators.append((model_name, clf.best_score_, clf.best_estimator_))
             
             for hparam in hparams:
-                
                logger.info(f"\t--> best value for hyperparameter {hparam}: {clf.best_params_.get(hparam)}")
             
             mean_accuracy = clf.cv_results_['mean_test_score'][clf.best_index_]
             std_score = clf.cv_results_['std_test_score'][clf.best_index_]
-            
-            # Save models with repsective accuracy
             results.append((model_name, model, mean_accuracy, std_score))
-
             logger.info(f'\t--> best model mean accuracy: {mean_accuracy}')
             logger.info(f'\t--> best model std: {std_score}')
             logger.info(f'\tElapsed time for GridSearch: {timedelta(seconds=ending_time - starting_time)}')
@@ -284,6 +294,23 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
 
 
 def validate_hparams_tuning(ctx, param, value):
+    """
+    Validate the hparams_tuning option based on the method.
+
+    Parameters
+    ----------
+    ctx : click.Context
+        Click context.
+    param : click.Parameter
+        Click parameter.
+    value : bool
+        Value of the hparams_tuning option.
+
+    Returns
+    -------
+    bool
+        Validated value of hparams_tuning.
+    """
     method = ctx.params.get('method')
     if method == 'classifiers' and value is None:
         raise click.UsageError("The --hparams_tuning option is required when --method is 'classifiers'")
@@ -298,6 +325,20 @@ def validate_hparams_tuning(ctx, param, value):
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to use if method is classifiers')
 @click.option('--hparams_tuning', type=bool, callback=validate_hparams_tuning, required=False, help='Whether to use GridSearch K-fold cross-validation for hyper-parameters tuning')
 def main(input_path, method, embedding, hparams_tuning):
+    """
+    Main function to train models based on the specified method, embedding, and hyperparameters tuning.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the training data.
+    method : str
+        Method to use for training.
+    embedding : str
+        Embedding method to use if method is 'classifiers'.
+    hparams_tuning : bool
+        Whether to perform GridSearch K-fold cross-validation for hyper-parameters tuning.
+    """
     if method == 'classifiers' and not embedding:
         raise click.UsageError("Argument --embedding is required when --method is 'classifiers'")
     log_fmt = '%(asctime)s - %(levelname)s - %(message)s'

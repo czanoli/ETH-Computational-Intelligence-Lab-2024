@@ -378,6 +378,7 @@ emoticons = [
     ":{", ":^", "8-)", "B-)", "8)", "B)", ":-J", ":(", ":|", "xD", "XD", "xP", "XP", "DX", "X(",
     "XO", "XP", "8-)", "8-(", ">:o", ">:-o", ">:-O"]
 
+# emoticons meaning
 emoticon_meanings = {
     '-_-': 'annoyance',
     '8)': 'cool',

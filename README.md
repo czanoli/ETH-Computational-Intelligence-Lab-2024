@@ -110,7 +110,7 @@ make
     ```
     ⚠️ Please note that hyper-parameters tuning requires a few days to be completed.
 
-    ⚠️ We observed that, depending on the platform running the code, the process of the pipeline using GloVe embeddings might be internally killed by the system due to very high memory usage. If you experience such issue, please consider using the small version of the training set by setting the ```train_dataset_type``` flag in ```src/data/config.yml``` file to ```small``` or use GloVe embeddings with fewer dimensions, for example 25, by setting the flag ```GLOVE_VECTOR_SIZE``` to ```25``` and glove_path to ```src/models/glove.twitter.27B/glove.twitter.27B.25d.txt``` in ```src/models/config.yml```.
+    ⚠️ We observed that, depending on the platform running the code, the process of the pipeline using GloVe embeddings might be internally killed by the system due to very high memory usage. If you experience such issue, please run the GloVe pipeline from the jupyter notebook named ```1.0--cz-BoW-GloVe.ipynb``` in the ```notebooks``` folder. If this doesn't still work, please consider using the small version of the training set by setting the ```train_dataset_type``` flag in ```src/data/config.yml``` file to ```small``` or use GloVe embeddings with fewer dimensions, for example 25, by setting the flag ```GLOVE_VECTOR_SIZE``` to ```25``` and glove_path to ```src/models/glove.twitter.27B/glove.twitter.27B.25d.txt``` in ```src/models/config.yml```.
 
 The final best model will be saved in the ```models``` folder of the ```root``` of the project.
 
@@ -158,45 +158,30 @@ python src/models/predict.py --model models/fasttext_model.bin --data data/proce
 
 
 ## 4. Project Results
-The following table shows the obtained final accuracy of the ```best model``` for each pipeline on the ```holdout validation set``` (10% of the training set). Models have been instantiated with the best hyper-parameters found through ```K-fold cross validation``` (```GridSearchCV```, k=5)
+The following table shows the validation accuracy and standard deviation of the ```best model```* for each pipeline on the ```holdout validation set``` (10% of the training set). Each model was trained 5 times on runs with different seeds. 
 
-| Model                              | Accuracy (\%) |
-|------------------------------------|---------------|
-| BoW + Logistic Regressor           | 80.69         |
-| BoW + Support Vector Machine       | 80.59         |
-| BoW + Ridge Classifier             | 80.47         |
-| BoW + SGD Classifier               | 80.18         |
-| BoW + Extra Trees                  | 81.58         |
-| BoW + Multi Layer Perceptron       | 79.56         |
-| GloVe + Logistic Regressor         | 78.70         |
-| GloVe + Support Vector Machine     | 78.96         |
-| GloVe + Ridge Classifier           | 78.68         |
-| GloVe + SGD Classifier             | 78.20         |
-| GloVe + Extra Trees                | 78.58         |
-| GloVe + Multi Layer Perceptron     | 81.02         |
-| FastText Classifier                | **86.21**     |
-
-<!--
-The following table shows the obtained final mean accuracy and standard deviation of the ```best model``` for each pipeline using ```K-fold cross validation``` (k=5) through ```GridSearchCV```.
+\* Models have been instantiated with the best hyper-parameters found through ```K-fold cross validation``` (```GridSearchCV```, k=5)
 
 | Model                              | Accuracy (\%) | Std (\%) |
 |------------------------------------|---------------|----------|
-| BoW + Logistic Regressor           | 80.60         |   0.05   |
+| BoW + Logistic Regressor           | 80.69         |   0.05   |
 | BoW + Support Vector Machine       | 80.59         |   0.18   |
-| BoW + Ridge Classifier             | 80.46         |   0.17   |
-| BoW + SGD Classifier               | 80.18         |   1.52   |
-| BoW + Extra Trees                  | 81.58         |   0.27   |
-| BoW + Multi Layer Perceptron       | 79.56         |   0.31   |
-| GloVe + Logistic Regressor         | 78.70         |   0.26   |
-| GloVe + Support Vector Machine     | 78.96         |   0.26   |
-| GloVe + Ridge Classifier           | 78.68         |   0.26   |
-| GloVe + SGD Classifier             | 78.20         |   0.23   |
-| GloVe + Extra Trees                | 78.58         |   0.30   |
-| GloVe + Multi Layer Perceptron     | 81.02         |   0.36   |
-| FastText Classifier                | **86.21**     |   0.13   |
--->
+| BoW + Ridge Classifier             | 80.47         |   0.17   |
+| BoW + SGD Classifier               | 80.18         |   0.20   |
+| BoW + Extra Trees                  | 82.16         |   0.27   |
+| BoW + Multi Layer Perceptron       | 79.52         |   0.31   |
+| GloVe + Logistic Regressor         | 78.65         |   0.26   |
+| GloVe + Support Vector Machine     | 78.67         |   0.26   |
+| GloVe + Ridge Classifier           | 78.31         |   0.26   |
+| GloVe + SGD Classifier             | 78.64         |   0.23   |
+| GloVe + Extra Trees                | 78.85         |   0.30   |
+| GloVe + Multi Layer Perceptron     | 81.16         |   0.36   |
+| FastText Classifier                | **86.22**     |   0.13   |
 
-Final remarks:
-- //TODO: cpu specs for training sklearn classifiers and fasttext
+
+## 5. Project Results
+//TODO
+
+- [scikit-learn](https://scikit-learn.org/stable/index.html) classifiers and [FastText](https://fasttext.cc/) classifier have been trained on the following CPU: Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
 - //TODO_ gpu specs for training of CNN, RNN and LLM
 
