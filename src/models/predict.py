@@ -7,8 +7,11 @@ import yaml
 from pathlib import Path
 import subprocess
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-
-# Initialize the logger
+import torch
+from train_llms import CustomClassifier
+import adapters
+from utils import *
+from torch.utils.data import DataLoader
 logger = logging.getLogger(__name__)
 
 # Load configuration from config.yml
@@ -21,7 +24,6 @@ VECTORIZER_PATH = config['VECTORIZER_PATH']
 GLOVE_PATH = config['glove_path']
 RESULTS_PATH = config['RESULTS_PATH']
 XTEST_PATH = config['fasttext']['xtest_path']
-
 
 def load_glove_embeddings(file_path):
     """
@@ -176,17 +178,38 @@ def predict_fasttext(modelpath, datapath):
     except subprocess.CalledProcessError as e:
         logger.error(f"Error during inference: {e.stderr}")
 
-def predict_twitterrobertabasesentimentlatest(model_path, data_path):
+def predict_llms(model_path, data_path, configfile):
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = AutoModelForSequenceClassification.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment-latest")
-    #TODO 
-
-
+    model = CustomClassifier.load(model_path,configfile)
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    model.to(device)
+    model.eval()
+    print("Using ", device)
+    df = pd.read_csv(data_path)
+    inputs = tokenizer(list(df['tweet']), return_tensors="pt", padding=True, truncation=True)
+    inputs = {key: value.to(device) for key, value in inputs.items()}
+    dataset = TweetDataset(tweets=df['tweet'].tolist(), tokenizer=tokenizer)
+    loader = DataLoader(dataset, batch_size=1024, shuffle=False)
+      
+    with torch.no_grad():
+        predictions = []
+        for batch in loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            outputs = model(**batch)
+            predictions = np.concatenate((predictions, torch.where(outputs.logits <= 0.5, torch.tensor(-1), torch.tensor(1)).squeeze().cpu().numpy()))
+ 
+    df_final = pd.DataFrame({
+        'id': range(1, len(predictions) + 1),
+        'prediction': predictions
+    })
+    df_final['prediction'] = df_final['prediction'].astype(int)
+    df_final.to_csv('predictions.csv', index=False, sep=',')
+    print("Predictions saved to predictions.csv")
 
 @click.command()
-@click.option('--model', 'model_path', type=str, required=True, help='Path to the model')
+@click.option('--model', 'model_path', type=str, required=False, help='Path to the model')
 @click.option('--data', 'data_path', type=str, required=True, help='Path to the test data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN','twitter-roberta-base-sentiment-latest']), required=True, help='Method used for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN','twitter-roberta-base-sentiment-latest', 'lora-roberta-large-sentiment-latest','bertweet-base','lora-bertweet-large', 'ensemble-small']), required=True, help='Method used for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to used if method is classifiers')
 def main(model_path, data_path, method, embedding):
     """
@@ -213,7 +236,15 @@ def main(model_path, data_path, method, embedding):
     if method == "fastText":
         predict_fasttext(model_path, data_path)
     if method == "twitter-roberta-base-sentiment-latest":
-        predict_twitterrobertabasesentimentlatest("models/finetuned-twitter-roberta-base-sentiment-latest", data_path)
-
+        predict_llms(model_path="models/finetuned-twitter-roberta-base-sentiment-latest", data_path=data_path, configfile=config['models_roberta_base'])
+    if method == "lora-roberta-large-sentiment-latest":
+        predict_llms(model_path="models/lora-twitter-roberta-large-topic-sentiment-latest", data_path=data_path, configfile=config['models_lora_roberta_large'])
+    if method == "bertweet-base":
+        predict_llms(model_path="models/finetuned-bertweet-base", data_path=data_path, configfile=config['models_bertweet_base'])
+    if method == "lora-bertweet-large":
+        predict_llms(model_path="models/lora-bertweet-large", data_path=data_path, configfile=config['models_lora_bertweet_large'])
+    #if method == "ensemble-small":
+        #TO DO
+        
 if __name__ == "__main__":
     main()
