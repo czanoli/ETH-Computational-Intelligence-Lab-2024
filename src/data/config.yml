@@ -1,6 +1,11 @@
 # full or small
 train_dataset_type: "full"
 
+# drop or keep
+duplicates_policy: "drop"
+conflict_policy: "drop"
+hashtag_policy: "keep"
+
 raw_train_paths:
   full:
     - "data/raw/train_pos_full.txt"
@@ -53,7 +58,7 @@ preprocessing_policy_total:
   lemmatization: True
 
 
-# Pre-processing policy with keep hashatg (Buona: BoW 80.44% (SVC))
+# Pre-processing policy optimal
 preprocessing_policy_optimal:
   name: "policy_optimal"
   handle_null: True

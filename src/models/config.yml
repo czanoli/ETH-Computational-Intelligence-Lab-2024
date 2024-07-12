@@ -10,9 +10,7 @@ fasttext:
   folder_path: "src/models/fastText-0.9.2"
   xtrain_path: "data/processed/fasttext_train_total.txt"
   xval_path: "data/processed/fasttext_val_total.txt"
-  xfull_path: "data/processed/fasttext_full_total.txt"
   xtest_path: "data/processed/fasttext_test_total.txt"
-  hparams_path: "src/models/fasttext_hparams.yml"
 
 
 VAL_SIZE: 0.1
