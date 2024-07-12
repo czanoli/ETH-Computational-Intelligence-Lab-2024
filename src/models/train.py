@@ -20,7 +20,10 @@ import logging
 import yaml
 from pathlib import Path
 import fulltwitterrobertabasesentimentlatest
-
+import lora_roberta_large
+import fullbertweetbase
+import lora_bertweet_large
+import ensemble_small
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 logger = logging.getLogger(__name__)
 
@@ -292,7 +295,6 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
     joblib.dump(best_model, file_path)
     logger.info(f"Model saved at {file_path}")
 
-
 def validate_hparams_tuning(ctx, param, value):
     """
     Validate the hparams_tuning option based on the method.
@@ -318,13 +320,13 @@ def validate_hparams_tuning(ctx, param, value):
         return False  # Default value for fastText
     return value
 
-
 @click.command()
 @click.option('--input', 'input_path', type=str, required=True, help='Path to the training data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest']), required=True, help='Method to use for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest','lora-roberta-large-sentiment-latest','bertweet-base','lora-bertweet-large','ensemble-small']), required=True, help='Method to use for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to use if method is classifiers')
 @click.option('--hparams_tuning', type=bool, callback=validate_hparams_tuning, required=False, help='Whether to use GridSearch K-fold cross-validation for hyper-parameters tuning')
-def main(input_path, method, embedding, hparams_tuning):
+@click.option('--validation', type=bool, required=False, help='On LLMs perform training with validation')
+def main(input_path, method, embedding, hparams_tuning, validation=False):
     """
     Main function to train models based on the specified method, embedding, and hyperparameters tuning.
 
@@ -349,7 +351,15 @@ def main(input_path, method, embedding, hparams_tuning):
     if method == "fastText":
         train_fasttext(input_path)
     if method == "twitter-roberta-base-sentiment-latest":
-        fulltwitterrobertabasesentimentlatest.execute(input_path)
+        fulltwitterrobertabasesentimentlatest.execute(input_path, validation,config)
+    if method == "lora-roberta-large-sentiment-latest":
+        lora_roberta_large.execute(input_path,validation,config)
+    if method == "bertweet-base":
+        fullbertweetbase.execute(input_path,validation,config)
+    if method == "lora-bertweet-large":
+        lora_bertweet_large.execute(input_path,validation,config)
+    if method == "ensemble-small":
+        ensemble_small.execute(input_path,validation,config)
 
 if __name__ == "__main__":
     main()
