@@ -8,9 +8,9 @@ GLOVE_VECTOR_SIZE: 200
 
 fasttext:
   folder_path: "src/models/fastText-0.9.2"
-  xtrain_path: "data/processed/fasttext_train_total.txt"
-  xval_path: "data/processed/fasttext_val_total.txt"
-  xtest_path: "data/processed/fasttext_test_total.txt"
+  xtrain_path: "data/processed/fasttext_train.txt"
+  xval_path: "data/processed/fasttext_val.txt"
+  xtest_path: "data/processed/fasttext_test.txt"
 
 
 VAL_SIZE: 0.1
