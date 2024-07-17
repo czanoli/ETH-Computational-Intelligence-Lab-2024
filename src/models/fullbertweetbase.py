@@ -9,6 +9,7 @@ def execute(path, validation,configfile):
     config = AutoConfig.from_pretrained("vinai/bertweet-base")
     additional = nn.Linear(config.hidden_size, 1)
     model = CustomClassifier(model, additional, configfile['models_bertweet_base'])
-    model = train(path, model, tokenizer, lr = configfile['models_bertweet_base']['lr'], num_epochs=configfile['models_bertweet_base']['epochs'], validation=validation)
+    train_loader, val_loader = get_tweets_loader(path, tokenizer, validation= validation)
+    model = train(train_loader, model, lr= configfile['models_bertweet_base']['lr'], num_epochs= configfile['models_bertweet_base']['epochs'], val_loader= val_loader)
     tokenizer.save_pretrained("models/finetuned-bertweet-base")
     model.save("models/finetuned-bertweet-base")
