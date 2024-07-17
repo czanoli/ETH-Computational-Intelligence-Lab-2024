@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 import torch
+from train_llms import train
 from utils import *
 
 
@@ -23,4 +24,29 @@ def random_forest(embedding_paths, labels_path, test_paths,seed=42):
     save_predictions(y_pred)
 
 
+def ensemble(embeddings_paths, labels_path, test_path, configfile, seed= 42):
+    set_seed(seed)
+    hidden_size = 0
+    for path in embeddings_paths:
+        hidden_size += len(np.array(torch.load(path))[0])
+    model = Ensemble(hidden_size)
+    train_loader, val_loader = get_embeddings_loader(embeddings_paths, labels_path= labels_path, seed= seed, validation= False)
+    model =  train(train_loader, model, lr= configfile['ensemble']['lr'], num_epochs= configfile['ensemble']['epochs'], val_loader= val_loader)
+    test_loader = get_embeddings_loader(test_path)
+    model.eval()
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    with torch.no_grad():
+        predictions = []
+        for batch in test_loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            outputs = model(**batch)
+            predictions = np.concatenate((predictions, torch.where(outputs.logits <= 0.5, torch.tensor(-1), torch.tensor(1)).squeeze().cpu().numpy()))
+ 
+    df_final = pd.DataFrame({
+        'id': range(1, len(predictions) + 1),
+        'prediction': predictions
+    })
+    df_final['prediction'] = df_final['prediction'].astype(int)
+    df_final.to_csv('predictions.csv', index=False, sep=',')
+    print("Predictions saved to predictions.csv")
 
