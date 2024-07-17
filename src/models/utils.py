@@ -1,6 +1,7 @@
 from transformers import AutoModelForSequenceClassification, AutoModel
 from transformers.modeling_outputs import TokenClassifierOutput
-from torch.utils.data import Dataset
+from sklearn.model_selection import train_test_split
+from torch.utils.data import Dataset, DataLoader
 from datetime import timedelta
 import pandas as pd
 import torch.nn as nn
@@ -64,6 +65,21 @@ class CustomClassifier(nn.Module):
         if self.config['lora']:
             self.encoder_model.save_adapter(path + "/adapter", 'lora_adapter')
 
+def get_tweets_loader(train_path, tokenizer, seed= 42, validation= False):
+    set_seed(seed)
+    df = pd.read_csv(train_path)
+    df['label'] = df['label'].map({"positive": 1, "negative": 0}) 
+    if validation:
+        train_df, val_df = train_test_split(df, test_size=0.1, random_state=seed)
+        val_dataset = TweetDataset(tweets=val_df['tweet'].tolist(), labels=val_df['label'].tolist(), tokenizer=tokenizer)
+        val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False,pin_memory=True)
+    else:
+        train_df = df
+    train_dataset = TweetDataset(tweets=train_df['tweet'].tolist(), labels=train_df['label'].tolist(), tokenizer=tokenizer)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True,pin_memory=True)
+    if validation:
+        return train_loader, val_loader
+    return train_loader, None 
 
 def format_time(seconds):
     return str(timedelta(seconds=int(round(seconds))))

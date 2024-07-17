@@ -1,33 +1,12 @@
-import torch
-import pandas as pd
-from torch.utils.data import DataLoader
-from transformers import get_scheduler
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-import time 
+from transformers import get_scheduler
 from tqdm.auto import tqdm
-import numpy as np
+import torch
+import time 
 from utils import *
-import time
 
-
-
-def train(train_path, model, tokenizer, lr = 2e-5,num_epochs=3, seed=42, validation = False):
-    
+def train(train_loader, model, lr= 2e-5,num_epochs= 3, seed= 42, val_loader= None):
     set_seed(seed)
-    df = pd.read_csv(train_path)
-    df['label'] = df['label'].map({"positive": 1, "negative": 0}) 
-    if validation:
-        train_df, val_df = train_test_split(df, test_size=0.1, random_state=seed)
-        val_dataset = TweetDataset(tweets=val_df['tweet'].tolist(), labels=val_df['label'].tolist(), tokenizer=tokenizer)
-        val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False,pin_memory=True)
-        del val_dataset
-    else:
-        train_df = df
-    train_dataset = TweetDataset(tweets=train_df['tweet'].tolist(), labels=train_df['label'].tolist(), tokenizer=tokenizer)
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True,pin_memory=True)  
-    del train_dataset
-    del df
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
     print("Using ", device)
@@ -50,7 +29,7 @@ def train(train_path, model, tokenizer, lr = 2e-5,num_epochs=3, seed=42, validat
             lr_scheduler.step()
             optimizer.zero_grad()
             progress_bar.update(1)
-        if validation:
+        if val_loader is not None:
             model.eval()
             all_labels = []
             all_preds = []
@@ -66,5 +45,3 @@ def train(train_path, model, tokenizer, lr = 2e-5,num_epochs=3, seed=42, validat
             print(f"Epoch {epoch + 1} took {format_time(time.time() - start_time)}. Validation Accuracy = {val_accuracy:.4f} ")
             model.train() 
     return model
-    
-
