@@ -76,7 +76,7 @@ From the project ```root``` folder, preprocess the raw training and test data by
 ```
 python src/data/preprocess_data.py
 ```
-The pre-processed training and test data will be saved in ```data/processed``` as ```train.csv``` and ```test.csv```
+Note: by default, the ```full``` version of the dataset is used. The pre-processed training and test data will be saved in ```data/processed``` as ```train.csv``` and ```test.csv```
 
 From the project ```root``` folder, download the GloVe embeddings and the FastText source code  by running:
 ```
@@ -94,6 +94,7 @@ make
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning False
     ```
+    Note: models are instantiated with the best hyper-parameters found through ```K-fold cross validation``` (```GridSearchCV```, k=5)
 - To run the BoW + Classifiers pipele with hyper-parameterstuning through GirdSearchCV run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning True
@@ -104,13 +105,14 @@ make
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning False
     ```
+    Note: models are instantiated with the best hyper-parameters found through ```K-fold cross validation``` (```GridSearchCV```, k=5)
 - To run the GloVe + Classifiers pipeline with hyper-parameterstuning through GirdSearchCV run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning True
     ```
     ⚠️ Please note that hyper-parameters tuning requires a few days to be completed.
 
-    ⚠️ We observed that, depending on the platform running the code, the process of the pipeline using GloVe embeddings might be internally killed by the system due to very high memory usage. If you experience such issue, please run the GloVe pipeline from the jupyter notebook named ```1.0--cz-BoW-GloVe.ipynb``` in the ```notebooks``` folder. If this doesn't still work, please consider using the small version of the training set by setting the ```train_dataset_type``` flag in ```src/data/config.yml``` file to ```small``` or use GloVe embeddings with fewer dimensions, for example 25, by setting the flag ```GLOVE_VECTOR_SIZE``` to ```25``` and glove_path to ```src/models/glove.twitter.27B/glove.twitter.27B.25d.txt``` in ```src/models/config.yml```.
+⚠️ We observed that, depending on the platform executing the code, the system might terminate some pipelines due to excessive memory usage (MemoryError). If you encounter this issue, consider increasing your system's available memory or using the smaller dataset version by setting  ```train_dataset_type: "small" ``` in ```src/data/config.yml```. Specifically for the GloVe pipeline, try running it from the Jupyter notebook named ```1.0--cz-BoW-GloVe.ipynb``` in the ```notebooks``` folder. If this does not resolve the issue, either use the smaller version of the training set as previously mentioned or use GloVe embeddings with fewer dimensions, such as 25, by setting the ```GLOVE_VECTOR_SIZE``` flag to ```25``` and updating the ```glove_path``` to ```src/models/glove.twitter.27B/glove.twitter.27B.25d.txt``` in ```src/models/config.yml```.
 
 The final best model will be saved in the ```models``` folder of the ```root``` of the project.
 
@@ -158,25 +160,11 @@ python src/models/predict.py --model models/fasttext_model.bin --data data/proce
 
 
 ## 4. Project Results
-The following table shows the validation accuracy and standard deviation of the ```best model```* for each pipeline on the ```holdout validation set``` (10% of the training set). Each model was trained 5 times on runs with different seeds. 
+The table below presents the test accuracies achieved by the selected baselines and the novel solution, evaluated on 50% of the public test data.
 
-\* Models have been instantiated with the best hyper-parameters found through ```K-fold cross validation``` (```GridSearchCV```, k=5)
-
-| Model                              | Accuracy (\%) | Std (\%) |
-|------------------------------------|---------------|----------|
-| BoW + Logistic Regressor           | 80.69         |   0.05   |
-| BoW + Support Vector Machine       | 80.59         |   0.18   |
-| BoW + Ridge Classifier             | 80.47         |   0.17   |
-| BoW + SGD Classifier               | 80.18         |   0.20   |
-| BoW + Extra Trees                  | 82.16         |   0.27   |
-| BoW + Multi Layer Perceptron       | 79.52         |   0.31   |
-| GloVe + Logistic Regressor         | 78.65         |   0.26   |
-| GloVe + Support Vector Machine     | 78.67         |   0.26   |
-| GloVe + Ridge Classifier           | 78.31         |   0.26   |
-| GloVe + SGD Classifier             | 78.64         |   0.23   |
-| GloVe + Extra Trees                | 78.85         |   0.30   |
-| GloVe + Multi Layer Perceptron     | 81.16         |   0.36   |
-| FastText Classifier                | **86.22**     |   0.13   |
+| Model                              | Accuracy (\%) |
+|------------------------------------|---------------|
+| FastText Classifier                | **85.88**     |
 
 
 ## 5. Project Results
