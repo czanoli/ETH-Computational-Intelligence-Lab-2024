@@ -2,6 +2,7 @@ from transformers import AutoModelForSequenceClassification, AutoModel
 from transformers.modeling_outputs import TokenClassifierOutput
 from torch.utils.data import Dataset
 from datetime import timedelta
+import pandas as pd
 import torch.nn as nn
 import torch
 import random
@@ -106,3 +107,23 @@ def create_clean_directory(dir_path):
     if os.path.exists(dir_path):
         shutil.rmtree(dir_path)
     os.mkdir(dir_path)
+
+def couple_data(embedding_paths,labels_path=None):
+    list_embeddings = []
+    for curr in embedding_paths:
+        list_embeddings.append([ i.numpy() for i in torch.load(curr)])
+    embeddings = np.concatenate(list_embeddings, axis=1)
+    if labels_path is not None:
+        df = pd.read_csv(labels_path)
+        labels = df['label'].map({"positive": 1, "negative": -1}).to_list()
+        return embeddings, labels
+    return embeddings
+
+def save_predictions(y_pred):
+    df_final = pd.DataFrame({
+        'id': range(1, len(y_pred) + 1),
+        'prediction': y_pred
+    })
+    df_final['prediction'] = df_final['prediction'].astype(int)
+    df_final.to_csv('predictions.csv', index=False, sep=',')
+    print("Predictions saved to predictions.csv")
