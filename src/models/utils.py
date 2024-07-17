@@ -111,7 +111,7 @@ def create_clean_directory(dir_path):
 def couple_data(embedding_paths,labels_path=None):
     list_embeddings = []
     for curr in embedding_paths:
-        list_embeddings.append([ i.numpy() for i in torch.load(curr)])
+        list_embeddings.append(np.array(torch.load(curr)))
     embeddings = np.concatenate(list_embeddings, axis=1)
     if labels_path is not None:
         df = pd.read_csv(labels_path)

@@ -322,7 +322,7 @@ def validate_hparams_tuning(ctx, param, value):
 
 @click.command()
 @click.option('--input', 'input_path', type=str, required=False, help='Path to the training data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest','lora-roberta-large-sentiment-latest','bertweet-base','lora-bertweet-large','base-ensemble-random-forest','large-ensemble-random-forest']), required=True, help='Method to use for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest','lora-roberta-large-sentiment-latest','bertweet-base','lora-bertweet-large','base-ensemble-random-forest','large-ensemble-random-forest','full-ensemble-random-forest']), required=True, help='Method to use for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to use if method is classifiers')
 @click.option('--hparams_tuning', type=bool, callback=validate_hparams_tuning, required=False, help='Whether to use GridSearch K-fold cross-validation for hyper-parameters tuning')
 @click.option('--validation', type=bool, required=False, help='On LLMs perform training with validation')
@@ -362,5 +362,7 @@ def main(input_path, method, embedding, hparams_tuning, validation=False):
         ensembles.random_forest(["data/embeddings/finetuned-bertweet-base_train_small.pt", "data/embeddings/finetuned-twitter-roberta-base-sentiment-latest_train_small.pt"],"data/processed/train_small.csv",["data/embeddings/finetuned-bertweet-base_test.pt","data/embeddings/finetuned-twitter-roberta-base-sentiment-latest_test.pt"])
     if method == "large-ensemble-random-forest":
         ensembles.random_forest(["data/embeddings/lora-bertweet-large_train_small.pt", "data/embeddings/lora-twitter-roberta-large-topic-sentiment-latest_train_small.pt"],"data/processed/train_small.csv",["data/embeddings/lora-bertweet-large_test.pt","data/embeddings/lora-twitter-roberta-large-topic-sentiment-latest_test.pt"])
+    if method == "full-ensemble-random-forest":
+        ensembles.random_forest(["data/embeddings/lora-bertweet-large_train_small.pt", "data/embeddings/lora-twitter-roberta-large-topic-sentiment-latest_train_small.pt","data/embeddings/finetuned-bertweet-base_train_small.pt","data/embeddings/finetuned-twitter-roberta-base-sentiment-latest_train_small.pt"],"data/processed/train_small.csv",["data/embeddings/lora-bertweet-large_test.pt","data/embeddings/lora-twitter-roberta-large-topic-sentiment-latest_test.pt","data/embeddings/finetuned-bertweet-base_test.pt","data/embeddings/finetuned-twitter-roberta-base-sentiment-latest_test.pt"])
 if __name__ == "__main__":
     main()
