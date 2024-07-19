@@ -22,6 +22,7 @@ def train(train_loader, model, lr= 2e-5,num_epochs= 3, seed= 42, val_loader= Non
         start_time = time.time()
         for batch in train_loader:
             batch = {k: v.to(device) for k, v in batch.items()}
+            #print(**batch)
             outputs = model(**batch)
             loss = outputs.loss
             loss.backward()
