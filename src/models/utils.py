@@ -15,12 +15,13 @@ from adapters import LoRAConfig
 
 class Ensemble(nn.Module):
     def __init__(self, hidden_size):
+        super(Ensemble, self).__init__()
         self.fc1 = nn.Linear(int(hidden_size), int(hidden_size/2))
         self.af1 = nn.ReLU()
         self.fc2 = nn.Linear(int(hidden_size/2),1)
 
-    def forward(self, x, labels= None):
-        x = self.fc1(x)
+    def forward(self, embeddings, labels= None):
+        x = self.fc1(embeddings)
         x = self.af1(x)
         x = self.fc2(x)
         x = torch.sigmoid(x)
@@ -99,7 +100,6 @@ class TweetDataset(Dataset):
             truncation=True,
             return_tensors='pt',
         )
-        
         item = {key: val.squeeze() for key, val in encoding.items()}
         if self.labels is not None:
             item['labels'] = torch.tensor(self.labels[idx], dtype=torch.long)
@@ -114,11 +114,11 @@ class EmbeddingsDataset(Dataset):
         return len(self.embeddings)
 
     def __getitem__(self, idx):
-        embedding = self.embeddings[idx]
+        item = {"embeddings": self.embeddings[idx]}
         if self.labels is None:
-            return embedding
-        label = self.labels[idx]
-        return embedding, label
+            return item
+        item["labels"] = self.labels[idx]
+        return item
 
 def get_tweets_loader(path, tokenizer, seed= 42, validation= False):
     df = pd.read_csv(path)
@@ -159,7 +159,7 @@ def couple_data(embedding_paths, labels_path= None):
     embeddings = np.concatenate(list_embeddings, axis=1)
     if labels_path is not None:
         df = pd.read_csv(labels_path)
-        labels = df['label'].map({"positive": 1, "negative": -1}).to_list()
+        labels = df['label'].map({"positive": 1, "negative": 0}).to_list()
         return embeddings, labels
     return embeddings
 
