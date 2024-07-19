@@ -116,7 +116,6 @@ make
 
 The final best model will be saved in the ```models``` folder of the ```root``` of the project.
 
-### FastText Training Pipeline
 - To run the FastText pipeline run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method fastText
