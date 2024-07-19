@@ -89,7 +89,7 @@ cd src/models/fastText-0.9.2
 make
 ```
 
-### Embedding (BoW, GloVe) + Classifiers training Pipeline
+### Embedding + Classifiers training Pipeline (BoW, GloVe, FastText)
 - To run the BoW + Classifiers pipeline run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning False
@@ -117,15 +117,15 @@ make
 The final best model will be saved in the ```models``` folder of the ```root``` of the project.
 
 ### FastText Training Pipeline
-From ```root``` folder of the project run:
-```
-python src/models/train.py --input data/processed/train.csv --method fastText
-```
-Then run:
-```
-src/models/fastText-0.9.2/fasttext supervised -input data/processed/fasttext_train.txt -output models/fasttext_model -autotune-validation data/processed/fasttext_val.txt -verbose 2
-```
-This will start the training with hyper-parameters tuning and it will last 5 minutes. Then it will perform the final training with the best set of hyperparameters-found. The validation set accuracy is displayed next to "Best Score:".
+- To run the FastText pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --input data/processed/train.csv --method fastText
+    ```
+    Then run:
+    ```
+    src/models/fastText-0.9.2/fasttext supervised -input data/processed/fasttext_train.txt -output models/fasttext_model -autotune-validation data/processed/fasttext_val.txt -verbose 2
+    ```
+    This will start the training with hyper-parameters tuning and it will last 5 minutes. Then it will perform the final training with the best set of hyperparameters-found. The validation set accuracy is displayed next to "Best Score:".
 
 ### CNN Training Pipeline
 //TODO
