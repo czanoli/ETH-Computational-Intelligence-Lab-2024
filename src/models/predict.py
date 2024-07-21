@@ -166,9 +166,9 @@ def predict_fasttext(modelpath, datapath):
         Path to the test data.
     """
     df_test = pd.read_csv(datapath)
-    logger.info("Formatting training set...")
+    logger.info("Formatting test set...")
     create_fasttext_format(df_test, XTEST_PATH, is_test=True)
-    logger.info("Training set formatted.")
+    logger.info("Test set formatted.")
     
     try:
         logger.info('Making predictions...')
