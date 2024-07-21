@@ -178,7 +178,7 @@ def train_fasttext(input_path):
     except Exception as e:
         logger.error(f"Error during FastText training: {e}")
                                  
-def train_classifiers(input_path, method, embedding, hparams_tuning):
+def train_classifiers(input_path, method, embedding, hparams_tuning, save):
     """
     Train classifiers using the specified method and embedding.
 
@@ -192,6 +192,8 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
         Embedding method to use.
     hparams_tuning : bool
         Whether to perform hyperparameter tuning.
+    save : str
+        Whether to train and save the best classifier (based on validation accuracy) or all classifiers.
     """
     logger.info('Loading training data...')
     df = pd.read_csv(input_path)
@@ -205,34 +207,54 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
     y = df['label']
 
     if not hparams_tuning:
-        logger.info('Creating training set and validation set (holdout)...')
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=VAL_SIZE, random_state=RANDOM_STATE)
-
-        if embedding == BOW:
-            logger.info('[BoW]: Vectorizing X_train and X_val...')
-            vectorizer = CountVectorizer(max_features=5000)
-            X_train = vectorizer.fit_transform(X_train)
-            X_val = vectorizer.transform(X_val)
-            logger.info('[BoW]: X_train and X_val vectorized.')
-            logger.info('[BoW]: Saving vectorizer for X_test...')
-            joblib.dump(vectorizer, OUTPUT_PATH + "count_vectorizer.pkl")
-            logger.info('[BoW]: Vectorizer saved.')
-
-        elif embedding == GLOVE:
-            logger.info('[GloVe]: Loading GloVe embeddings...')
-            glove_embeddings = load_glove_embeddings(GLOVE_PATH)
-            logger.info('[GloVe]: GloVe embeddings loaded.')
-            logger.info('[GloVe]: Vectorizing X_train and X_val...')
-            X_train = np.array([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in X_train])
-            X_val = np.array([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in X_val])
-            logger.info('[GloVe]: X_train and X_val vectorized.')
+        if save == "best":
+            logger.info('Creating training set and validation set (holdout)...')
+            X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=VAL_SIZE, random_state=RANDOM_STATE)
+            if embedding == BOW:
+                logger.info('[BoW]: Vectorizing X_train and X_val...')
+                vectorizer = CountVectorizer(max_features=5000)
+                X_train = vectorizer.fit_transform(X_train)
+                X_val = vectorizer.transform(X_val)
+                logger.info('[BoW]: X_train and X_val vectorized.')
+                logger.info('[BoW]: Saving vectorizer for X_test...')
+                joblib.dump(vectorizer, OUTPUT_PATH + "count_vectorizer.pkl")
+                logger.info('[BoW]: Vectorizer saved.')
+            elif embedding == GLOVE:
+                logger.info('[GloVe]: Loading GloVe embeddings...')
+                glove_embeddings = load_glove_embeddings(GLOVE_PATH)
+                logger.info('[GloVe]: GloVe embeddings loaded.')
+                logger.info('[GloVe]: Vectorizing X_train and X_val...')
+                X_train = np.array([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in X_train])
+                X_val = np.array([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in X_val])
+                logger.info('[GloVe]: X_train and X_val vectorized.')   
+            else:
+                logger.error("'embedding' type is incorrect. Please double check it.")
+        
+        elif save == "all":
+            if embedding == BOW:
+                logger.info('[BoW]: Vectorizing X...')
+                vectorizer = CountVectorizer(max_features=5000)
+                X = vectorizer.fit_transform(X)
+                logger.info('[BoW]: X vectorized.')
+                logger.info('[BoW]: Saving vectorizer (for further X_test)...')
+                joblib.dump(vectorizer, OUTPUT_PATH + "count_vectorizer.pkl")
+                logger.info('[BoW]: Vectorizer saved.')
+            elif embedding == GLOVE:
+                logger.info('[GloVe]: Loading GloVe embeddings...')
+                glove_embeddings = load_glove_embeddings(GLOVE_PATH)
+                logger.info('[GloVe]: GloVe embeddings loaded.')
+                logger.info('[GloVe]: Vectorizing X...')
+                X = np.array([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in X])
+                logger.info('[GloVe]: X vectorized.')
+            else:
+                logger.error("'embedding' type is incorrect. Please double check it.")
     else:
         if embedding == BOW:
             logger.info('[BoW]: Vectorizing X...')
             vectorizer = CountVectorizer(max_features=5000)
             X = vectorizer.fit_transform(X)
             logger.info('[BoW]: X vectorized.')
-            logger.info('[BoW]: Saving vectorizer for X_test...')
+            logger.info('[BoW]: Saving vectorizer (for further X_test)...')
             joblib.dump(vectorizer, OUTPUT_PATH + "count_vectorizer.pkl")
             logger.info('[BoW]: Vectorizer saved.')
         elif embedding == GLOVE:
@@ -242,6 +264,8 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
             logger.info('[GloVe]: Vectorizing X...')
             X = np.array([tweet_to_glove_vector(tweet, glove_embeddings) for tweet in X])
             logger.info('[GloVe]: X vectorized.')
+        else:
+            logger.error("'embedding' type is incorrect. Please double check it.")
 
     if hparams_tuning:
         logger.info("Performing hyper-parameters tuning with GridSearch. This will take a long time (few days). It is recommended to run the train.py script with '-hparams_tuning False'.")
@@ -270,7 +294,8 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
         logger.info("Hyper-parameters tuning completed.")
         best_model_name, best_model, best_accuracy, std_score = max(results, key=lambda x: x[2])
         logger.info(f"Best Model: {best_model_name} with accuracy {best_accuracy:.4f}")
-    else:
+    elif save == "best":
+        logger.info('Training with holdout validation set...')
         results = []
         for model, model_name in zip(models, MODEL_NAMES):
             logger.info(f"Training {model_name}...")
@@ -286,14 +311,24 @@ def train_classifiers(input_path, method, embedding, hparams_tuning):
 
         X = vstack([X_train, X_val])
         y = np.concatenate((y_train, y_val))
-
-    logger.info("Final training with best model...")
-    best_model.fit(X, y)
-    logger.info("Final training completed.")
-    logger.info("Saving model...")
-    file_path = OUTPUT_PATH + f"{method}.pkl"
-    joblib.dump(best_model, file_path)
-    logger.info(f"Model saved at {file_path}")
+        
+        logger.info("Final training with best model...")
+        best_model.fit(X, y)
+        logger.info("Final training completed.")
+        logger.info("Saving model...")
+        file_path = OUTPUT_PATH + f"{embedding}_{best_model_name}.pkl"
+        joblib.dump(best_model, file_path)
+        logger.info(f"Model saved at {file_path}")
+    
+    else:
+        for model, model_name in zip(models, MODEL_NAMES):
+            logger.info(f"Full training with {model_name}...")
+            model.fit(X, y)
+            logger.info(f"Full training with {model_name} completed.")
+            file_path = OUTPUT_PATH + f"{embedding}_{model_name}.pkl"
+            logger.info("Saving model...")
+            joblib.dump(model, file_path)
+            logger.info(f"Model saved at {file_path}")
 
 def validate_hparams_tuning(ctx, param, value):
     """
@@ -325,8 +360,9 @@ def validate_hparams_tuning(ctx, param, value):
 @click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest','lora-roberta-large-sentiment-latest','bertweet-base','lora-bertweet-large','ensemble-small']), required=True, help='Method to use for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to use if method is classifiers')
 @click.option('--hparams_tuning', type=bool, callback=validate_hparams_tuning, required=False, help='Whether to use GridSearch K-fold cross-validation for hyper-parameters tuning')
+@click.option('--save', type=click.Choice(['all', 'best']), required=False, help='Whether to train and save the best classifier based on validation accuracy or save all classifiers')
 @click.option('--validation', type=bool, required=False, help='On LLMs perform training with validation')
-def main(input_path, method, embedding, hparams_tuning, validation=False):
+def main(input_path, method, embedding, hparams_tuning, save, validation=False):
     """
     Main function to train models based on the specified method, embedding, and hyperparameters tuning.
 
@@ -345,9 +381,11 @@ def main(input_path, method, embedding, hparams_tuning, validation=False):
         raise click.UsageError("Argument --embedding is required when --method is 'classifiers'")
     log_fmt = '%(asctime)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
+    if save is None:
+        save = "best"
     
     if method == "classifiers":
-        train_classifiers(input_path, method, embedding, hparams_tuning)
+        train_classifiers(input_path, method, embedding, hparams_tuning, save)
     if method == "fastText":
         train_fasttext(input_path)
     if method == "twitter-roberta-base-sentiment-latest":
