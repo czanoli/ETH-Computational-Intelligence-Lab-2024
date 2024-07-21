@@ -108,3 +108,7 @@ models_lora_bertweet_large:
   attn_matrices: ['q','k','v']
   r: 8
   alpha: 16
+
+ensemble:
+  lr: 0.0001
+  epochs: 3
