@@ -1,16 +1,16 @@
 random_state: 42
 
-glove_path: 'data/external/glove.twitter.27B/glove.twitter.27B.200d.txt'
+glove_path: 'src/models/glove.twitter.27B/glove.twitter.27B.200d.txt'
 
 BOW: "BoW"
 GLOVE: "GloVe"
+GLOVE_VECTOR_SIZE: 200
 
 fasttext:
   folder_path: "src/models/fastText-0.9.2"
   xtrain_path: "data/processed/fasttext_train.txt"
   xval_path: "data/processed/fasttext_val.txt"
-  xfull_path: "data/processed/fasttext_full.txt"
-  hparams_path: "src/models/fasttext_hparams.yml"
+  xtest_path: "data/processed/fasttext_test.txt"
 
 
 VAL_SIZE: 0.1
@@ -18,12 +18,12 @@ CV: 5
 SCORING: "accuracy"
 
 models_names:
-  - 'Logistic Regressor'
-  - 'Support Vector Machine'
-  - 'Ridge Classifier'
-  - 'SGD Classifier'
-  - 'Extra Trees'
-  - 'Multi Layer Perceptron'
+  - 'Logistic_Regressor'
+  - 'Support_Vector_Machine'
+  - 'Ridge_Classifier'
+  - 'SGD_Classifier'
+  - 'Extra_Trees'
+  - 'Multi_Layer_Perceptron'
 
 models_hparams:
   - C: [0.01, 0.1, 1, 10]
@@ -31,15 +31,84 @@ models_hparams:
   - C: [0.01, 0.1, 1, 10]
     loss: ['hinge', 'squared_hinge']
   - alpha: [0.01, 0.1, 1, 10]
-  - loss: ['hinge', 'log']
-    alpha: [0.001, 0.01, 0.1]
+  - loss: ['hinge', 'log_loss']
+    alpha: [0.0001, 0.01, 0.1]
     penalty: ['l2', 'l1', 'elasticnet']
-  - n_estimators: [50, 100, 200]
+  - n_estimators: [50, 100]
     min_samples_split: [2, 5, 10]
     criterion: ['gini']
-  - hidden_layer_sizes: [(50,), (100,), (50, 50)]
+  - hidden_layer_sizes: 
+      - [50]
+      - [100]
+      - [50, 50]
     activation: ['relu']
     solver: ['adam']
     alpha: [0.001, 0.01, 1]
 
-OUTPUT_PATH: "models/model.pkl"
+best_hparams:
+- C: 1
+  solver: 'saga'
+- C: 0.1
+  loss: 'squared_hinge'
+- alpha: 10
+- loss: 'hinge'
+  alpha: 0.0001
+  penalty: 'l2'
+- n_estimators: 100
+  min_samples_split: 5
+  criterion: 'gini'
+- hidden_layer_sizes: 
+    - [100]
+  activation: 'relu'
+  solver: 'adam'
+  alpha: 0.001
+
+
+OUTPUT_PATH: "models/"
+VECTORIZER_PATH: "models/count_vectorizer.pkl"
+RESULTS_PATH: "results/"
+
+models_roberta_base:
+  lr: 0.00001
+  epochs: 3
+  lora: False
+  encoder : "roberta"
+  isForClassification: True
+
+models_lora_roberta_large:
+  lr: 0.00001
+  epochs: 4
+  lora: True
+  encoder : "roberta"
+  isForClassification: True
+  selfattn_lora: True
+  intermediate_lora: True
+  output_lora: True
+  attn_matrices: ['q','k','v']
+  r: 8
+  alpha: 16
+
+
+models_bertweet_base:
+  lr: 0.00001
+  epochs: 3
+  lora : False
+  encoder: ""
+  isForClassification: False
+
+models_lora_bertweet_large:
+  lr: 0.0001
+  epochs: 4
+  lora: True
+  encoder: ""
+  isForClassification: False
+  selfattn_lora: True
+  intermediate_lora: True
+  output_lora: True
+  attn_matrices: ['q','k','v']
+  r: 8
+  alpha: 16
+
+ensemble:
+  lr: 0.0001
+  epochs: 3

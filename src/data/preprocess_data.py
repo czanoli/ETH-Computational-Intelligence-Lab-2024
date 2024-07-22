@@ -1,41 +1,35 @@
 # -*- coding: utf-8 -*-
-#import click
 import os
 import yaml
 import logging
 from pathlib import Path
-#from dotenv import find_dotenv, load_dotenv
 from generate_dataset import DataProcessor
 
 # Load configuration from config.yaml
 with open(Path(__file__).resolve().parent/'config.yml', 'r') as file:
     config = yaml.safe_load(file)
-preprocessing_policy = config['preprocessing_policy_5']
-train_dataset_type = config["train_dataset_type"]
-hashtag_policy = config["hashtag_policy"]
+
 duplicates_policy = config["duplicates_policy"]
-shared_duplicates_policy = config["shared_duplicates_policy"]
 conflict_policy = config["conflict_policy"]
+hashtag_policy = config["hashtag_policy"]
+preprocessing_policy = config['preprocessing_policy_optimal']
+train_dataset_type = config["train_dataset_type"]
 train_files = config['raw_train_paths']
 test_file = config['raw_test_path']
 processed_train_path = config['processed_train_path']
 processed_test_path = config['processed_test_path']
 
-#@click.command()
-#@click.option('-i', '--input_datapath', type=click.Path(exists=True), required=True, help='Path to the folder containing raw training data.')
-#@click.option('-t', '--data_type', type=click.Choice(['full', 'small'], case_sensitive=False), required=False, help='Dataset type to be loaded.')
-#@click.option('-o', '--output_datapath', type=click.Path(), required=True, help='Path to the output folder where processed training data will be saved.')
 def main():
-    """ Runs data processing scripts to turn raw training data into
-        cleaned training data ready to be analyzed.
+    """
+    Runs data processing scripts to turn raw training and testing data 
+    into cleaned versions ready to be analyzed.
     """
     logger = logging.getLogger(__name__)
     
     logger.info('Creating DataProcessor instance ...')
     logger.info(f"Using pre-processing policy {preprocessing_policy['name']} ...")
-    data_processor = DataProcessor(duplicates_policy, shared_duplicates_policy, conflict_policy, 
-                                   train_dataset_type, project_dir, train_files, test_file,
-                                   preprocessing_policy, hashtag_policy)
+    data_processor = DataProcessor(duplicates_policy, conflict_policy, hashtag_policy, 
+                                   train_dataset_type, project_dir, train_files, test_file, preprocessing_policy)
 
     logger.info('Loading training data ...')
     df = data_processor.load_data()
@@ -72,7 +66,5 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format=log_fmt)
     project_dir = Path(__file__).resolve().parents[2]
     os.chdir(project_dir)
-    #load_dotenv(find_dotenv())
-
     main()
 

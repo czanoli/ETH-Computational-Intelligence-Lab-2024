@@ -1,0 +1,6 @@
+Model: Logistic Regressor Accuracy: 0.7865
+Model: Support Vector Machine Accuracy: 0.7867
+Model: Ridge Classifier Accuracy: 0.7831
+Model: SGD Classifier Accuracy: 0.7864
+Model: Extra Trees Accuracy: 0.7885
+Model: Multi Layer Perceptron Accuracy: 0.8116
