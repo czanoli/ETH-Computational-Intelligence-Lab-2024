@@ -161,12 +161,42 @@ python src/models/predict.py --model models/fasttext_model.bin --data data/proce
 ## 4. Project Results
 The table below presents the test accuracies achieved by the selected baselines and the novel solution, evaluated on 50% of the public test data.
 
-| Model                              | Accuracy (\%) |
-|------------------------------------|---------------|
-| FastText Classifier                | **85.88**     |
+- Word Embeddings with Classifiers:
+
+    | Model                     | Accuracy (\%) |
+    |---------------------------|---------------|
+    | BoW + Logistic Regressor  | 80.04         |
+    | BoW + SVM                 | 79.74         |
+    | BoW + Ridge Classifier    | 79.58         |
+    | BoW + SGD Classifier      | 79.08         |
+    | BoW + Extra Trees         | 79.74         |
+    | BoW + MLP                 | 83.30         |
+    | GloVe + Logistic Regressor| 77.70         |
+    | GloVe + SVM               | 77.82         |
+    | GloVe + Ridge Classifier  | 78.04         |
+    | GloVe + SGD Classifier    | 77.98         |
+    | GloVe + Extra Trees       | 78.66         |
+    | GloVe + MLP               | 83.90         |
+    | FastText                  | 85.88         |
+
+- Convolutional Neural Networks (CNN):
+  
+    //TODO
+
+- Hybrid Models with CNN-LSTM and LSTM-CNN Architectures:
+  
+    //TODO
+
+- Large Language Models:
+
+    //TODO
+
+- Novel Solution:
+
+    //TODO
 
 
-## 5. Project Results
+## 5. Remarks
 //TODO
 
 - [scikit-learn](https://scikit-learn.org/stable/index.html) classifiers and [FastText](https://fasttext.cc/) classifier have been trained on the following CPU: Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
