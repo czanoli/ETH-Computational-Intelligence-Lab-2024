@@ -146,19 +146,19 @@ The final best model will be saved in the ```models``` folder of the ```root``` 
 //TODO
 
 ### Making Predictions:
-- Embedding (BoW, GloVe) + Classifiers Pipeline (from root folder of the project):
+- Embedding (BoW, GloVe) + Classifiers Pipeline (from ```root``` folder of the project):
 ```
 python src/models/predict.py --model models/classifiers.pkl --data data/processed/test.csv --method classifiers --embedding BoW
 ```
-- FastText (from root folder of the project):
+- FastText (from ```root``` folder of the project):
 ```
 python src/models/predict.py --model models/fasttext_model.bin --data data/processed/test.csv --method fastText
 ```
-- CNN:
+- CNN (from ```root``` folder of the project):
 ```
 python src/models/predict.py --data data/processed/test.csv --method CNN
 ```
-- HYBRID MODELS:
+- HYBRID MODELS (from ```root``` folder of the project):
 ```
 python src/models/predict.py --data data/processed/test.csv --method CNN-LSTM
 ```
@@ -197,7 +197,7 @@ The table below presents the test accuracies achieved by the selected baselines 
     | Model                     | Accuracy (\%) |
     |---------------------------|---------------|
     | CNN(v1)                   | 80.32         |
-    | CNN(v2) - final choice    | 85.94         |
+    | CNN(v2) final choice      | 85.94         |
     | CNN(v3)                   | 84.74         |
 
 
@@ -208,7 +208,7 @@ The table below presents the test accuracies achieved by the selected baselines 
     | CNN-LSTM(v1)              | 82.55         |
     | CNN-LSTM(v2) final choice | 84.02         |
     | LSTM-CNN(v1)              | 85.93         |
-    | LSTM-CNN(v2)              | 86.78         |
+    | LSTM-CNN(v2) final choice | 86.78         |
 
 - Large Language Models:
 
