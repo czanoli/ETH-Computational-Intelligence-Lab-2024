@@ -24,6 +24,14 @@ import lora_roberta_large
 import fullbertweetbase
 import lora_bertweet_large
 import ensembles
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+from cnn_model import CNN
+from cnn_lstm_model import CNN_LSTM
+from lstm_cnn_model import LSTM_CNN
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 logger = logging.getLogger(__name__)
 
@@ -355,9 +363,316 @@ def validate_hparams_tuning(ctx, param, value):
         return False  # Default value for fastText
     return value
 
+def train_CNN(input_path):
+    """
+    Train CNN.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input data file.
+    
+    """
+    # 1 - load training data
+    logger.info("Loading data...")
+    df = pd.read_csv(input_path)
+    df = df.dropna(subset=['tweet'])
+    X = df['tweet']
+    y = df['label']
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+    # 2 - tokenize and pad sequences
+    logger.info("Preprocessing data...")
+    max_words = 10000
+    tokenizer = Tokenizer(num_words=max_words)
+    tokenizer.fit_on_texts(X_train)
+    sequence_train = tokenizer.texts_to_sequences(X_train)
+    sequence_val = tokenizer.texts_to_sequences(X_val)
+    word2vec = tokenizer.word_index
+    V = len(word2vec)
+    data_train = pad_sequences(sequence_train)
+    T = data_train.shape[1]
+    data_val = pad_sequences(sequence_val, maxlen=T)
+    # 3 - convert into pytorch tensors
+    X_train = torch.tensor(data_train, dtype=torch.long)
+    y_train = torch.tensor(LabelEncoder().fit_transform(y_train), dtype=torch.float32)
+    X_val = torch.tensor(data_val, dtype=torch.long)
+    y_val = torch.tensor(LabelEncoder().fit_transform(y_val), dtype=torch.float32)
+    # 4 - create dataLoader
+    train_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=32, shuffle=True)
+    val_loader = DataLoader(TensorDataset(X_val, y_val), batch_size=32)
+    # 5 - initialize model
+    logger.info("Initialize model...")
+    model = CNN(vocab_size=V+1, embed_dim=20)
+    # 6 - define loss
+    criterion = nn.BCEWithLogitsLoss()
+    # 7- define optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    # 8 - since overfitting was observed -> early stopping parameters
+    wait = 5
+    best_val_loss = np.inf
+    epochs_no_impr = 0
+    early_stop = False
+    # 6 - training loop
+    logger.info("Start training...")
+    epochs = 50
+    for epoch in range(epochs):
+        model.train()
+        train_loss = 0.0
+        correct_train = 0
+        total_train = 0
+        for texts, labels in train_loader:
+            optimizer.zero_grad()
+            outputs = model(texts).squeeze(1)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss.item()
+            predicted = torch.round(torch.sigmoid(outputs))
+            total_train += labels.size(0)
+            correct_train += (predicted == labels).sum().item()
+        train_accuracy = 100 * correct_train / total_train
+        # 7 - validation
+        model.eval()
+        val_loss = 0.0
+        correct_val = 0
+        total_val = 0
+        with torch.no_grad():
+            for texts, labels in val_loader:
+                outputs = model(texts).squeeze(1)
+                loss = criterion(outputs, labels)
+                val_loss += loss.item()
+                predicted = torch.round(torch.sigmoid(outputs))
+                total_val += labels.size(0)
+                correct_val += (predicted == labels).sum().item()
+
+        val_accuracy = 100 * correct_val / total_val
+        avg_val_loss = val_loss / len(val_loader)
+
+        print(f'Epoch {epoch+1}, Train Loss: {train_loss / len(train_loader)}, Train Accuracy: {train_accuracy}%, '
+            f'Validation Loss: {avg_val_loss}, Validation Accuracy: {val_accuracy}%')
+
+        # 8 - early stopping 
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            epochs_no_impr = 0
+            logger.info("Saving model...")
+            torch.save(model.state_dict(), 'best_new_CNN_model.pt')
+        else:
+            epochs_no_impr += 1
+            if epochs_no_impr >= wait:
+                logger.info("early stopping")
+                early_stop = True
+                break
+
+
+def train_CNN_LSTM(input_path):
+    """
+    Train hybrid model CNN-LSTM.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input data file.
+    
+    """
+    # 1 - load training data
+    logger.info("Loading data...")
+    df = pd.read_csv(input_path)
+    df = df.dropna(subset=['tweet'])
+    X = df['tweet']
+    y = df['label']
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+    # 2 - tokenize and pad sequences
+    logger.info("Preprocessing data...")
+    max_words = 10000
+    tokenizer = Tokenizer(num_words=max_words)
+    tokenizer.fit_on_texts(X_train)
+    sequence_train = tokenizer.texts_to_sequences(X_train)
+    sequence_val = tokenizer.texts_to_sequences(X_val)
+    word2vec = tokenizer.word_index
+    V = len(word2vec)
+    data_train = pad_sequences(sequence_train)
+    T = data_train.shape[1]
+    data_val = pad_sequences(sequence_val, maxlen=T)
+    # 3 - convert into pytorch tensors
+    X_train = torch.tensor(data_train, dtype=torch.long)
+    y_train = torch.tensor(LabelEncoder().fit_transform(y_train), dtype=torch.float32)
+    X_val = torch.tensor(data_val, dtype=torch.long)
+    y_val = torch.tensor(LabelEncoder().fit_transform(y_val), dtype=torch.float32)
+    # 4 - create dataLoader
+    train_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=32, shuffle=True)
+    val_loader = DataLoader(TensorDataset(X_val, y_val), batch_size=32)
+    # 5 - initialize model
+    logger.info("Initialize model...")
+    model = CNN_LSTM(vocab_size=V+1, embed_dim=20, lstm_hidden_dim=128, num_classes=1)
+    # 6 - define loss
+    criterion = nn.BCEWithLogitsLoss()
+    # 7- define optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    # 8 - since overfitting was observed -> early stopping parameters
+    wait = 5
+    best_val_loss = np.inf
+    epochs_no_impr = 0
+    early_stop = False
+    # 6 - training loop
+    logger.info("Start training...")
+    epochs = 50
+    for epoch in range(epochs):
+        model.train()
+        train_loss = 0.0
+        correct_train = 0
+        total_train = 0
+        for texts, labels in train_loader:
+            optimizer.zero_grad()
+            outputs = model(texts).squeeze(1)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss.item()
+            predicted = torch.round(torch.sigmoid(outputs))
+            total_train += labels.size(0)
+            correct_train += (predicted == labels).sum().item()
+        train_accuracy = 100 * correct_train / total_train
+        # 7 - validation
+        model.eval()
+        val_loss = 0.0
+        correct_val = 0
+        total_val = 0
+        with torch.no_grad():
+            for texts, labels in val_loader:
+                outputs = model(texts).squeeze(1)
+                loss = criterion(outputs, labels)
+                val_loss += loss.item()
+                predicted = torch.round(torch.sigmoid(outputs))
+                total_val += labels.size(0)
+                correct_val += (predicted == labels).sum().item()
+
+        val_accuracy = 100 * correct_val / total_val
+        avg_val_loss = val_loss / len(val_loader)
+
+        print(f'Epoch {epoch+1}, Train Loss: {train_loss / len(train_loader)}, Train Accuracy: {train_accuracy}%, '
+            f'Validation Loss: {avg_val_loss}, Validation Accuracy: {val_accuracy}%')
+
+        # 8 - early stopping 
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            epochs_no_impr = 0
+            logger.info("Saving model...")
+            torch.save(model.state_dict(), 'best_new_CNN_LSTM_model.pt')
+        else:
+            epochs_no_impr += 1
+            if epochs_no_impr >= wait:
+                logger.info("early stopping")
+                early_stop = True
+                break
+
+def train_LSTM_CNN(input_path):
+    """
+    Train hybrid model LSTM-CNN.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input data file.
+    
+    """
+    # 1 - load training data
+    logger.info("Loading data...")
+    df = pd.read_csv(input_path)
+    df = df.dropna(subset=['tweet'])
+    X = df['tweet']
+    y = df['label']
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+    # 2 - tokenize and pad sequences
+    logger.info("Preprocessing data...")
+    max_words = 10000
+    tokenizer = Tokenizer(num_words=max_words)
+    tokenizer.fit_on_texts(X_train)
+    sequence_train = tokenizer.texts_to_sequences(X_train)
+    sequence_val = tokenizer.texts_to_sequences(X_val)
+    word2vec = tokenizer.word_index
+    V = len(word2vec)
+    data_train = pad_sequences(sequence_train)
+    T = data_train.shape[1]
+    data_val = pad_sequences(sequence_val, maxlen=T)
+    # 3 - convert into pytorch tensors
+    X_train = torch.tensor(data_train, dtype=torch.long)
+    y_train = torch.tensor(LabelEncoder().fit_transform(y_train), dtype=torch.float32)
+    X_val = torch.tensor(data_val, dtype=torch.long)
+    y_val = torch.tensor(LabelEncoder().fit_transform(y_val), dtype=torch.float32)
+    # 4 - create dataLoader
+    train_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=32, shuffle=True)
+    val_loader = DataLoader(TensorDataset(X_val, y_val), batch_size=32)
+    # 5 - initialize model
+    logger.info("Initialize model...")
+    model = LSTM_CNN(vocab_size=V+1, embed_dim=20, lstm_hidden_dim=128, num_classes=1)
+    # 6 - define loss
+    criterion = nn.BCEWithLogitsLoss()
+    # 7- define optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    # 8 - since overfitting was observed -> early stopping parameters
+    wait = 5
+    best_val_loss = np.inf
+    epochs_no_impr = 0
+    early_stop = False
+    # 6 - training loop
+    logger.info("Start training...")
+    epochs = 50
+    for epoch in range(epochs):
+        model.train()
+        train_loss = 0.0
+        correct_train = 0
+        total_train = 0
+        for texts, labels in train_loader:
+            optimizer.zero_grad()
+            outputs = model(texts).squeeze(1)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss.item()
+            predicted = torch.round(torch.sigmoid(outputs))
+            total_train += labels.size(0)
+            correct_train += (predicted == labels).sum().item()
+        train_accuracy = 100 * correct_train / total_train
+        # 7 - validation
+        model.eval()
+        val_loss = 0.0
+        correct_val = 0
+        total_val = 0
+        with torch.no_grad():
+            for texts, labels in val_loader:
+                outputs = model(texts).squeeze(1)
+                loss = criterion(outputs, labels)
+                val_loss += loss.item()
+                predicted = torch.round(torch.sigmoid(outputs))
+                total_val += labels.size(0)
+                correct_val += (predicted == labels).sum().item()
+
+        val_accuracy = 100 * correct_val / total_val
+        avg_val_loss = val_loss / len(val_loader)
+
+        print(f'Epoch {epoch+1}, Train Loss: {train_loss / len(train_loader)}, Train Accuracy: {train_accuracy}%, '
+            f'Validation Loss: {avg_val_loss}, Validation Accuracy: {val_accuracy}%')
+
+        # 8 - early stopping 
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            epochs_no_impr = 0
+            logger.info("Saving model...")
+            torch.save(model.state_dict(), 'best_new_LSTM_CNN_model.pt')
+        else:
+            epochs_no_impr += 1
+            if epochs_no_impr >= wait:
+                logger.info("early stopping")
+                early_stop = True
+                break
+
 @click.command()
 @click.option('--input', 'input_path', type=str, required=False, help='Path to the training data')
-@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'RNN', 'twitter-roberta-base-sentiment-latest','lora-roberta-large-sentiment-latest','bertweet-base','lora-bertweet-large','base-ensemble-random-forest','large-ensemble-random-forest','full-ensemble-random-forest','large-ensemble-nn','extra-trees']), required=True, help='Method to use for training')
+@click.option('--method', type=click.Choice(['classifiers', 'fastText', 'CNN', 'CNN-LSTM','LSTM-CNN','twitter-roberta-base-sentiment-latest','lora-roberta-large-sentiment-latest','bertweet-base','lora-bertweet-large','base-ensemble-random-forest','large-ensemble-random-forest','full-ensemble-random-forest','large-ensemble-nn','extra-trees']), required=True, help='Method to use for training')
 @click.option('--embedding', type=click.Choice(['BoW', 'GloVe']), required=False, help='Embedding method to use if method is classifiers')
 @click.option('--hparams_tuning', type=bool, callback=validate_hparams_tuning, required=False, help='Whether to use GridSearch K-fold cross-validation for hyper-parameters tuning')
 @click.option('--save', type=click.Choice(['all', 'best']), required=False, help='Whether to train and save the best classifier based on validation accuracy or save all classifiers')
@@ -388,6 +703,12 @@ def main(input_path, method, embedding, hparams_tuning, save, validation=False):
         train_classifiers(input_path, method, embedding, hparams_tuning, save)
     if method == "fastText":
         train_fasttext(input_path)
+    if method =="CNN":
+        train_CNN(input_path)
+    if method =="CNN-LSTM":
+        train_CNN_LSTM(input_path)
+    if method =="LSTM-CNN":
+        train_LSTM_CNN(input_path)
     if method == "twitter-roberta-base-sentiment-latest":
         fulltwitterrobertabasesentimentlatest.execute(input_path, validation,config)
     if method == "lora-roberta-large-sentiment-latest":
