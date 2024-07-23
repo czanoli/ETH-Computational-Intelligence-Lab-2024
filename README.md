@@ -127,10 +127,20 @@ The final best model will be saved in the ```models``` folder of the ```root``` 
     This will start the training with hyper-parameters tuning and it will last 5 minutes. Then it will perform the final training with the best set of hyperparameters-found. The validation set accuracy is displayed next to "Best Score:".
 
 ### CNN Training Pipeline
-//TODO
+- To run the CNN pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --input data/processed/train.csv --method CNN
+    ```
 
-### RNN Training Pipeline
-//TODO
+### HYBRID MODELS Training Pipeline
+- To run the CNN-LSTM pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --input data/processed/train.csv --method CNN-LSTM
+    ```
+- To run the LSTM-CNN pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --input data/processed/train.csv --method LSTM_CNN
+    ```
 
 ### LLM Training Pipeline
 //TODO
@@ -146,11 +156,14 @@ python src/models/predict.py --model models/fasttext_model.bin --data data/proce
 ```
 - CNN:
 ```
-//TODO
+python src/models/predict.py --data data/processed/test.csv --method CNN
 ```
-- RNN:
+- HYBRID MODELS:
 ```
-//TODO
+python src/models/predict.py --data data/processed/test.csv --method CNN-LSTM
+```
+```
+python src/models/predict.py --data data/processed/test.csv --method LSTM-CNN
 ```
 - LLM:
 ```
@@ -181,11 +194,21 @@ The table below presents the test accuracies achieved by the selected baselines 
 
 - Convolutional Neural Networks (CNN):
   
-    //TODO
+    | Model                     | Accuracy (\%) |
+    |---------------------------|---------------|
+    | CNN(v1)                   | 80.32         |
+    | CNN(v2) - final choice    | 85.94         |
+    | CNN(v3)                   | 84.74         |
+
 
 - Hybrid Models with CNN-LSTM and LSTM-CNN Architectures:
   
-    //TODO
+    | Model                     | Accuracy (\%) |
+    |---------------------------|---------------|
+    | CNN-LSTM(v1)              | 82.55         |
+    | CNN-LSTM(v2) final choice | 84.02         |
+    | LSTM-CNN(v1)              | 85.93         |
+    | LSTM-CNN(v2)              | 86.78         |
 
 - Large Language Models:
 
