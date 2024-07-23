@@ -197,18 +197,18 @@ The table below presents the test accuracies achieved by the selected baselines 
     | Model                     | Accuracy (\%) |
     |---------------------------|---------------|
     | CNN(v1)                   | 80.32         |
-    | CNN(v2) final choice      | 85.94         |
-    | CNN(v3)                   | 84.74         |
+    | CNN(v2) final choice      | 84.14         |
+    | CNN(v3)                   | 83.78         |
 
 
 - Hybrid Models with CNN-LSTM and LSTM-CNN Architectures:
   
     | Model                     | Accuracy (\%) |
     |---------------------------|---------------|
-    | CNN-LSTM(v1)              | 82.55         |
-    | CNN-LSTM(v2) final choice | 84.02         |
-    | LSTM-CNN(v1)              | 85.93         |
-    | LSTM-CNN(v2) final choice | 86.78         |
+    | CNN-LSTM(v1)              | 84.55         |
+    | CNN-LSTM(v2) final choice | 85.72         |
+    | LSTM-CNN(v1)              | 86.93         |
+    | LSTM-CNN(v2) final choice | 87.12         |
 
 - Large Language Models:
 
