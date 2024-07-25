@@ -80,7 +80,8 @@ target/
 /data/external
 /data/interim
 /data/processed
-/data/embeddings
+/data/old_embeddings
+/data/processed_holdout
 
 # Mac OS-specific storage files
 .DS_Store
