@@ -17,6 +17,23 @@ from pathlib import Path
 @click.option('--data_path', type=str, required=True)
 @click.option('--model_name', type=str, required=True)
 def main(model_path, data_path, model_name):
+    """
+    Generate and save embeddings from a pre-trained model on a given dataset.
+
+    Parameters
+    ----------
+    model_path : str
+        Path to the pre-trained model.
+    data_path : str
+        Path to the CSV file containing the data.
+    model_name : str
+        The key for the model configuration in the config file.
+
+    Returns
+    -------
+    None
+        The model saves the embeddings in data/embeddings/modelname_dataname.pt
+    """
     with open(Path(__file__).resolve().parent/'config.yml', 'r') as ymlfile:
         config = yaml.safe_load(ymlfile)
     tokenizer = AutoTokenizer.from_pretrained(model_path)

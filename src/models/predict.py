@@ -344,6 +344,25 @@ def predict_LSTM_CNN(datapath):
 
 
 def predict_llms(model_path, data_path, configfile):
+    
+    """
+    Generate predictions using a pre-trained llm model on a given dataset.
+
+    Parameters
+    ----------
+    model_path : str
+        Path to the pre-trained model.
+    data_path : str
+        Path to the CSV file containing the data for prediction.
+    configfile : dict
+        Configuration parameters loaded from a .yml file.
+
+    Returns
+    -------
+    None
+        The function saves the predictions to 'predictions.csv'.
+    """
+
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = CustomClassifier.load(model_path,configfile)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")

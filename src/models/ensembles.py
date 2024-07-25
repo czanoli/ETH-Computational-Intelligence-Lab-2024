@@ -10,23 +10,70 @@ from utils import *
 
 
 def random_forest(embedding_paths, labels_path, test_paths,seed=42):
+    """
+    Train a Random Forest classifier on (potentially) multiple embeddings concatenated and make predictions on test data.
+
+    Parameters
+    ----------
+    embedding_paths : list[str]
+        List of paths to embeddings datasets.
+    labels_path : str
+        Path to the original dataset with labels.
+    test_paths : list[str]
+        List of paths to test embeddings datasets.
+    seed : int, optional
+        Random seed for reproducibility. Default is 42.
+
+    Returns
+    -------
+    None
+        Saves test predictions in predictions.csv
+    """
+
     set_seed(seed)
     x, y = couple_data(embedding_paths, labels_path)
     X_train, X_val, y_train, y_val = train_test_split(x, y, test_size=0.1, random_state=seed, shuffle=True)
     print("Data coupled")
+
     clf = RandomForestClassifier(n_estimators=100, random_state=seed, verbose=2)
     clf.fit(X_train, y_train)
     print("Model fit")
+
     y_val_pred = clf.predict(X_val)
     val_accuracy = accuracy_score(y_val, y_val_pred)
     print("Validation accuracy ", val_accuracy)
+
     X_test = couple_data(test_paths)
     y_pred = clf.predict(X_test)
     y_pred = [-1 if y==0 else 1 for y in y_pred]
+
     save_predictions(y_pred)
 
 
 def ensemble(embeddings_paths, labels_path, test_paths, configfile, seed= 42, validation=False):
+    """
+    Train an ensemble model on embeddings and make predictions on test data.
+
+    Parameters
+    ----------
+    embeddings_paths : list[str]
+        List of paths to embeddings datasets.
+    labels_path : str
+        Path to the original dataset with labels.
+    test_paths : list[str]
+        List of paths to test embeddings datasets.
+    configfile : dict
+        Configuration parameters loaded from a .yml file.
+    seed : int, optional
+        Random seed for reproducibility. Default is 42.
+    validation : bool, optional
+        Flag to indicate whether to use a validation set. Default is False.
+
+    Returns
+    -------
+    None
+        Saves test predictions in predictions.csv
+    """
     set_seed(seed)
     hidden_size = 0
     for path in embeddings_paths:
@@ -53,6 +100,25 @@ def ensemble(embeddings_paths, labels_path, test_paths, configfile, seed= 42, va
     print("Predictions saved to predictions.csv")
 
 def extra_trees(embedding_paths, labels_path, test_paths,seed=42):
+    """
+    Train an Extra Trees classifier on (potentially) multiple embeddings concatenated and make predictions on test data.
+
+    Parameters
+    ----------
+    embedding_paths : list[str]
+        List of paths to embeddings datasets.
+    labels_path : str
+        Path to the original dataset with labels.
+    test_paths : list[str]
+        List of paths to test embeddings datasets.
+    seed : int, optional
+        Random seed for reproducibility. Default is 42.
+
+    Returns
+    -------
+    None
+        Saves test predictions in predictions.csv
+    """
     set_seed(seed)
     x, y = couple_data(embedding_paths, labels_path)
     X_train, X_val, y_train, y_val = train_test_split(x, y, test_size=0.1, random_state=seed, shuffle=True)

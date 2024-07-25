@@ -691,6 +691,10 @@ def main(input_path, method, embedding, hparams_tuning, save, validation=False):
         Embedding method to use if method is 'classifiers'.
     hparams_tuning : bool
         Whether to perform GridSearch K-fold cross-validation for hyper-parameters tuning.
+    save : str
+        Whether to train and save the best classifier based on validation accuracy or save all classifiers
+    validation : bool, optional
+        On LLMs perform training with validation. Default is False
     """
     if method == 'classifiers' and not embedding:
         raise click.UsageError("Argument --embedding is required when --method is 'classifiers'")

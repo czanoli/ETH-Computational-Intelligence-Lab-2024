@@ -4,6 +4,24 @@ from train_llms import train
 from utils import *
 
 def execute(path, validation,configfile):
+    """
+    Execute the fine-tuning and saving process for vinai/bertweet-large with LoRA adaptation and modified for binary-classification sentiment analysis.
+    https://huggingface.co/vinai/bertweet-large
+
+    Parameters
+    ----------
+    path : str
+        Path to the dataset for training and validation.
+    validation : bool
+        Flag to indicate whether to perform validation during the training epochs.
+    configfile : dict
+        Configuration parameters loaded from a .yml file.
+
+    Returns
+    -------
+    None
+        The trained model is saved in models/lora-bertweet-large
+    """
     set_seed(configfile['random_state'])
     tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-large")
     model = AutoModelForMaskedLM.from_pretrained("vinai/bertweet-large").roberta

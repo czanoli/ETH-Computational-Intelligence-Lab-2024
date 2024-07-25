@@ -6,6 +6,29 @@ import time
 from utils import *
 
 def train(train_loader, model, lr= 2e-5,num_epochs= 3, seed= 42, val_loader= None):
+    """
+    Train an PyTorch LLM model with optional validation.
+
+    Parameters
+    ----------
+    train_loader : DataLoader
+        DataLoader for the training data.
+    model : torch.nn.Module
+        The model to train.
+    lr : float, optional
+        Learning rate for the optimizer. Default is 2e-5.
+    num_epochs : int, optional
+        Number of epochs to train the model. Default is 3.
+    seed : int, optional
+        Random seed for reproducibility. Default is 42.
+    val_loader : DataLoader, optional
+        DataLoader for the validation data. Default is None.
+
+    Returns
+    -------
+    torch.nn.Module
+        The trained model.
+    """
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
     print("Using ", device)
@@ -21,7 +44,6 @@ def train(train_loader, model, lr= 2e-5,num_epochs= 3, seed= 42, val_loader= Non
         start_time = time.time()
         for batch in train_loader:
             batch = {k: v.to(device) for k, v in batch.items()}
-            #print(**batch)
             outputs = model(**batch)
             loss = outputs.loss
             loss.backward()
