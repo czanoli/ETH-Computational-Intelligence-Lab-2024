@@ -6,7 +6,6 @@ import time
 from utils import *
 
 def train(train_loader, model, lr= 2e-5,num_epochs= 3, seed= 42, val_loader= None):
-    set_seed(seed)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
     print("Using ", device)
