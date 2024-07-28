@@ -2,7 +2,7 @@
 ## Twitter Text Sentiment Classification
 
 - Group Name: CIL'em All
-- Authors: Christopher Zanoli, Federica Bruni, Francesco Rita, Matteo Boglioni
+- Authors: Matteo Boglioni, Federica Bruni, Francesco Rita, Christopher Zanoli
 
 ## 1. Project Description
 The goal of the project is to classify if the sentiment of Twitter tweets is positive or negative.
@@ -135,12 +135,12 @@ make
 
 - To run the GloVe + Classifiers pipeline run (from ```root``` folder of the project):
     ```
-    python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning False --save all
+    python src/models/train.py --input data/processed/train.csv --method classifiers --embedding GloVe --hparams_tuning False --save all
     ```
     Note: models are instantiated with the best hyper-parameters found through ```K-fold cross validation``` (```GridSearchCV```, k=5). You can set the ```--save``` flag to ```best``` to save only the best model (based on validation accuracy).
-- To run the GloVe + Classifiers pipeline with hyper-parameterstuning through GirdSearchCV run (from ```root``` folder of the project):
+- To run the GloVe + Classifiers pipeline with hyper-parameters tuning through GirdSearchCV run (from ```root``` folder of the project):
     ```
-    python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning True
+    python src/models/train.py --input data/processed/train.csv --method classifiers --embedding GloVe --hparams_tuning True
     ```
     ⚠️ Please note that hyper-parameters tuning requires a few days to be completed.
 
@@ -156,7 +156,7 @@ The final best model will be saved in the ```models``` folder of the ```root``` 
     ```
     src/models/fastText-0.9.2/fasttext supervised -input data/processed/fasttext_train.txt -output models/fasttext_model -autotune-validation data/processed/fasttext_val.txt -verbose 2
     ```
-    This will start the training with hyper-parameters tuning and it will last 5 minutes. Then it will perform the final training with the best set of hyperparameters-found. The validation set accuracy is displayed next to "Best Score:".
+    This will start the training with hyper-parameters tuning and then it will perform the final training with the best set of hyperparameters-found. The validation set accuracy is displayed next to "Best Score:".
 
 ### CNN Training Pipeline
 - To run the CNN pipeline run (from ```root``` folder of the project):
@@ -339,7 +339,7 @@ The table below presents the test accuracies achieved by the selected baselines 
     | BERT-EFRI-large           | 91.84         |
     | BERT-EFRI-base&large      | 91.14         |
 
-## 5. Remarks
+## 5. Final Remarks
 
 - [scikit-learn](https://scikit-learn.org/stable/index.html) classifiers and [FastText](https://fasttext.cc/) classifier have been trained on the following CPU: Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
 - LLMs have been trained over NVIDIA GPUs with **minimum** 11GB VRAM, CUDA Version 12.6
