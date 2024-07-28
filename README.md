@@ -8,51 +8,83 @@
 The goal of the project is to classify if the sentiment of Twitter tweets is positive or negative.
 
 ## 2. Project Organization
-    |
+```
+    |  
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
+    |   ├── processed      <- The final, canonical data sets for modeling.
+    |   ├── raw            <- The original, immutable data dump.
+    │   ├── embeddings     <- The embeddings of the processed dataset from the finetuned-llm-models 
+    │   │   ├── finetuned-bertweet-base_test.pt
+    │   │   ├── finetuned-bertweet-base_train_small.pt
+    │   │   ├── finetuned-twitter-roberta-base-sentiment-latest_test.pt
+    │   │   ├── finetuned-twitter-roberta-base-sentiment-latest_train_small.pt
+    │   │   ├── lora-bertweet-large_test.pt
+    │   │   ├── lora-bertweet-large_train_small.pt
+    │   │   ├── lora-twitter-roberta-large-topic-sentiment-latest_test.pt
+    │   │   └── lora-twitter-roberta-large-topic-sentiment-latest_train_small.pt
+    │   └── processed_llm  <- The final, canonical data sets for training llms.
+    │       ├── test.csv
+    │       ├── train_full.csv
+    │       └── train_small.csv
     ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
     ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
+    │   |                     the creator's initials, and a short `-` delimited description, e.g.
+    │   |                     `1.0-jqp-initial-data-exploration`.
+    │   ├── 1.0--cz-fastText.ipynb
+    │   ├── 1.0-cz-BoW-GloVe.ipynb
+    │   ├── 1.0-fb-CNN.ipynb
+    │   └── tokenizer.pickle
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
+    │   └── Tutorial_Sentiment_Classification.pdf
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    |   ├── interim        <- Generated code results to be used in reporting
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
+    │   ├── figures        <- Generated graphics and figures to be used in reporting
+    │   └── interim        <- Generated code results to be used in reporting
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
-    │
+    ├── results            <- Results folder for predictions
     └── src                <- Source code for use in this project.
-        ├── __init__.py    <- Makes src a Python module
-        │
-        ├── data           <- Scripts and config to download or generate data
-        |   ├── generate_dataset.py
-        |   ├── config.yml
-        |   ├── vocabulary.py
-        │   └── preprocess_train.py
-        │
-        ├── features       <- Scripts to turn raw data into features for modeling
-        │   └── build_features.py
-        │
-        ├── models         <- Scripts and config to train models and then use trained models to make
+        ├── __init__.py    <- Makes src a Python module
+        ├── data           <- Scripts and config to download or generate data
+        │   ├── __init__.py
+        │   ├── config.yml
+        │   ├── generate_dataset.py
+        │   ├── preprocess_data.py
+        │   └── vocabulary.py
+        ├── features       <- Scripts to turn raw data into features for modeling
+        │   ├── __init__.py
+        │   └── build_features.py
+        ├── models         <- Scripts and config to train models and then use trained models to make
         │   │                 predictions
-        │   ├── download_glove_fasttext.py
-        │   ├── config.yml
-        │   ├── predict.py
-        │   └── train.py
-        │
-        └── visualization  <- Scripts to create exploratory and results oriented visualizations
-            └── visualize.py
-
+        │   ├── __init__.py
+        │   ├── best_CNN_LSTM_model.pt
+        │   ├── best_CNN_model.pt
+        │   ├── best_LSTM_CNN_model.pt
+        │   ├── cnn_lstm_model.py
+        │   ├── cnn_model.py
+        │   ├── config.yml
+        │   ├── download_glove_fasttext.py
+        │   ├── ensembles.py
+        │   ├── fullbertweetbase.py
+        │   ├── fulltwitterrobertabasesentimentlatest.py
+        │   ├── generate_embeddings.py
+        │   ├── lora_bertweet_large.py
+        │   ├── lora_roberta_large.py
+        │   ├── lstm_cnn_model.py
+        │   ├── predict.py
+        │   ├── tokenizer.pickle
+        │   ├── train.py
+        │   ├── train_llms.py
+        │   └── utils.py
+        └── visualization  <- Scripts to create exploratory and results oriented visualizations
+            ├── __init__.py
+            ├── config.yml
+            └── visualize.py
+```
 ## 3. Project Setup
-Create a virtual environment and install project's dependencies by running:
+This software requires Python 3.10.12. Please make sure you have this specific version installed on your system.
+This software is compatible with CUDA 12.6. Ensure you have this version installed.
+Create a virtual environment with python and install project's dependencies by running:
 ```
 pip install -r requirements.txt
 ```
@@ -163,20 +195,21 @@ At the end of the training pipeline the finetuned model is saved in ```models```
 
 ### ENSEMBLES Training Pipeline 
 In order to perform the ENSEMBLE & BERT-EFRI Training Pipeline it's firstly needed to generate the embeddings dataset with the following commands (from ```root``` folder of the project):
-    
-    ```
-    python src/models/generate_embeddings.py --model_path path_to_finetuned_model --data_path data/processed_llm/train_small.csv --model_name name_of_model
-    ```
-    ```
-    python src/models/generate_embeddings.py --model_path path_to_finetuned_mode --data_path data/processed_llm/test.csv --model_name name_of_model
-    ```
+
+```
+python src/models/generate_embeddings.py --model_path path_to_finetuned_model --data_path data/processed_llm/train_small.csv --model_name name_of_model
+```
+
+```
+python src/models/generate_embeddings.py --model_path path_to_finetuned_mode --data_path data/processed_llm/test.csv --model_name name_of_model
+```
 Where the name_of_model is the name of the specific model in the ```/src/models/config.yml``` file and path_to_finetuned_model is the path the finetuned model' weights are saved in. For example, to obtain bertweet-base embeddings run (from ```root``` folder of the project):
-    ```
-    python src/models/generate_embeddings.py --model_path models/finetuned-bertweet-base  --data_path data/processed_llm/train_small.csv --model_name models_bertweet_base
-    ```
-    ```
-    python src/models/generate_embeddings.py --model_path models/finetuned-bertweet-base --data_path data/processed_llm/test.csv --model_name models_bertweet_base
-    ```
+```
+python src/models/generate_embeddings.py --model_path models/finetuned-bertweet-base  --data_path data/processed_llm/train_small.csv --model_name models_bertweet_base
+```
+```
+python src/models/generate_embeddings.py --model_path models/finetuned-bertweet-base --data_path data/processed_llm/test.csv --model_name models_bertweet_base
+```
 - To run the base-ensemble-nn fed with the embeddings of the base-models pipeline run (from ```root``` folder of the project):
     ```
     python src/models/train.py --method base-ensemble-nn
@@ -243,7 +276,7 @@ The training pipeline of each configuration compute the predictions and save the
 
 
 ## 4. Project Results
-The table below presents the test accuracies achieved by the selected baselines and the novel solution, evaluated on 50% of the public test data.
+The table below presents the test accuracies achieved by the selected baselines and the novel solution, evaluated on 50% of the kaggle test data.
 
 - Word Embeddings with Classifiers:
 
