@@ -163,6 +163,7 @@ At the end of the training pipeline the finetuned model is saved in ```models```
 
 ### ENSEMBLES Training Pipeline 
 In order to perform the ENSEMBLE & BERT-EFRI Training Pipeline it's firstly needed to generate the embeddings dataset with the following commands (from ```root``` folder of the project):
+    
     ```
     python src/models/generate_embeddings.py --model_path path_to_finetuned_model --data_path data/processed_llm/train_small.csv --model_name name_of_model
     ```
@@ -170,6 +171,7 @@ In order to perform the ENSEMBLE & BERT-EFRI Training Pipeline it's firstly need
     python src/models/generate_embeddings.py --model_path path_to_finetuned_mode --data_path data/processed_llm/test.csv --model_name name_of_model
     ```
 Where the name_of_model is the name of the specific model in the ```/src/models/config.yml``` file and path_to_finetuned_model is the path the finetuned model' weights are saved in. For example, to obtain bertweet-base embeddings run :
+
     ```
     python src/models/generate_embeddings.py --model_path models/finetuned-bertweet-base  --data_path data/processed_llm/train_small.csv --model_name models_bertweet_base
     ```
