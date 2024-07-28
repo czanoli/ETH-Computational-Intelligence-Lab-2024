@@ -148,8 +148,9 @@ The final best model will be saved in the ```models``` folder of the ```root``` 
 ### Making Predictions:
 - Embedding (BoW, GloVe) + Classifiers Pipeline (from ```root``` folder of the project):
 ```
-python src/models/predict.py --model models/classifiers.pkl --data data/processed/test.csv --method classifiers --embedding BoW
+python src/models/predict.py --model models/<your-classifier>.pkl --data data/processed/test.csv --method classifiers --embedding BoW
 ```
+Note: replace ```<your-classifier>.pkl``` with the name of the classifier you generated during training. For example: ```BoW_Logistic_Regressor.pkl```
 - FastText (from ```root``` folder of the project):
 ```
 python src/models/predict.py --model models/fasttext_model.bin --data data/processed/test.csv --method fastText
