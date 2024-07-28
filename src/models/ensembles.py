@@ -9,7 +9,7 @@ from utils import *
 
 
 
-def random_forest(embedding_paths, labels_path, test_paths,seed=42):
+def random_forest(embedding_paths, labels_path, test_paths,seed=42, validation=False):
     """
     Train a Random Forest classifier on (potentially) multiple embeddings concatenated and make predictions on test data.
 
@@ -23,6 +23,8 @@ def random_forest(embedding_paths, labels_path, test_paths,seed=42):
         List of paths to test embeddings datasets.
     seed : int, optional
         Random seed for reproducibility. Default is 42.
+    validation: bool, otpional
+        Flag to indicate whether to use a validation set. Default is False.
 
     Returns
     -------
@@ -31,17 +33,18 @@ def random_forest(embedding_paths, labels_path, test_paths,seed=42):
     """
 
     set_seed(seed)
-    x, y = couple_data(embedding_paths, labels_path)
-    X_train, X_val, y_train, y_val = train_test_split(x, y, test_size=0.1, random_state=seed, shuffle=True)
+    X_train, y_train = couple_data(embedding_paths, labels_path)
+    if validation:
+        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.1, random_state=seed, shuffle=True)
     print("Data coupled")
 
     clf = RandomForestClassifier(n_estimators=100, random_state=seed, verbose=2)
     clf.fit(X_train, y_train)
     print("Model fit")
-
-    y_val_pred = clf.predict(X_val)
-    val_accuracy = accuracy_score(y_val, y_val_pred)
-    print("Validation accuracy ", val_accuracy)
+    if validation:
+        y_val_pred = clf.predict(X_val)
+        val_accuracy = accuracy_score(y_val, y_val_pred)
+        print("Validation accuracy ", val_accuracy)
 
     X_test = couple_data(test_paths)
     y_pred = clf.predict(X_test)
@@ -98,38 +101,3 @@ def ensemble(embeddings_paths, labels_path, test_paths, configfile, seed= 42, va
     df_final['prediction'] = df_final['prediction'].astype(int)
     df_final.to_csv('predictions.csv', index=False, sep=',')
     print("Predictions saved to predictions.csv")
-
-def extra_trees(embedding_paths, labels_path, test_paths,seed=42):
-    """
-    Train an Extra Trees classifier on (potentially) multiple embeddings concatenated and make predictions on test data.
-
-    Parameters
-    ----------
-    embedding_paths : list[str]
-        List of paths to embeddings datasets.
-    labels_path : str
-        Path to the original dataset with labels.
-    test_paths : list[str]
-        List of paths to test embeddings datasets.
-    seed : int, optional
-        Random seed for reproducibility. Default is 42.
-
-    Returns
-    -------
-    None
-        Saves test predictions in predictions.csv
-    """
-    set_seed(seed)
-    x, y = couple_data(embedding_paths, labels_path)
-    X_train, X_val, y_train, y_val = train_test_split(x, y, test_size=0.1, random_state=seed, shuffle=True)
-    print("Data coupled")
-    clf = ExtraTreesClassifier(n_estimators=100, random_state=seed, verbose=2)
-    clf.fit(X_train, y_train)
-    print("Model fit")
-    y_val_pred = clf.predict(X_val)
-    val_accuracy = accuracy_score(y_val, y_val_pred)
-    print("Validation accuracy ", val_accuracy)
-    X_test = couple_data(test_paths)
-    y_pred = clf.predict(X_test)
-    y_pred = [-1 if y==0 else 1 for y in y_pred]
-    save_predictions(y_pred)
