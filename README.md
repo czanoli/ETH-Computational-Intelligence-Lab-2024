@@ -167,6 +167,7 @@ In order to perform the ENSEMBLE & BERT-EFRI Training Pipeline it's firstly need
     ```
     python src/models/generate_embeddings.py --model_path path_to_finetuned_model --data_path data/processed_llm/train_small.csv --model_name name_of_model
     ```
+    
     ```
     python src/models/generate_embeddings.py --model_path path_to_finetuned_mode --data_path data/processed_llm/test.csv --model_name name_of_model
     ```
@@ -175,6 +176,7 @@ Where the name_of_model is the name of the specific model in the ```/src/models/
     ```
     python src/models/generate_embeddings.py --model_path models/finetuned-bertweet-base  --data_path data/processed_llm/train_small.csv --model_name models_bertweet_base
     ```
+
     ```
     python src/models/generate_embeddings.py --model_path models/finetuned-bertweet-base --data_path data/processed_llm/test.csv --model_name models_bertweet_base
     ```
