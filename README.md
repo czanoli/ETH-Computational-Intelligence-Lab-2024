@@ -82,8 +82,8 @@ The goal of the project is to classify if the sentiment of Twitter tweets is pos
             └── visualize.py
 ```
 ## 3. Project Setup
-This software requires Python 3.10.12. Please make sure you have this specific version installed on your system.
-This software is compatible with CUDA 12.6. Ensure you have this version installed.
+This software requires Python 3.10.12. Please make sure you have this specific version installed on your system.\
+This software is compatible with CUDA 12.6. Ensure you have this version installed.\
 Create a virtual environment with python and install project's dependencies by running:
 ```
 pip install -r requirements.txt
@@ -127,7 +127,7 @@ make
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning False --save all
     ```
     Note: models are instantiated with the best hyper-parameters found through ```K-fold cross validation``` (```GridSearchCV```, k=5). You can set the ```--save``` flag to ```best``` to save only the best model (based on validation accuracy).
-- To run the BoW + Classifiers pipele with hyper-parameterstuning through GirdSearchCV run (from ```root``` folder of the project):
+- To run the BoW + Classifiers pipeline with hyper-parameterstuning through GirdSearchCV run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning True 
     ```
