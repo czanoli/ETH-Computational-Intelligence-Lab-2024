@@ -143,7 +143,66 @@ The final best model will be saved in the ```models``` folder of the ```root``` 
     ```
 
 ### LLM Training Pipeline
-//TODO
+- To run the twitter-roberta-base-sentiment-latest pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --input data/processed_llm/train_full.csv --method twitter-roberta-base-sentiment-latest
+    ```
+- To run the lora-roberta-large-sentiment-latest pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --input data/processed_llm/train_full.csv --method lora-roberta-large-sentiment-latest
+    ```
+- To run the bertweet-base pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --input data/processed_llm/train_full.csv --method bertweet-base
+    ```
+- To run the lora-bertweet-large pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --input data/processed_llm/train_full.csv --method lora-bertweet-large
+    ```
+At the end of the training pipeline the finetuned model is saved in ```models``` folder.
+
+### ENSEMBLES Training Pipeline 
+In order to perform the ENSEMBLE & BERT-EFRI Training Pipeline it's firstly needed to generate the embeddings dataset with the following commands (from ```root``` folder of the project):
+    ```
+    python src/models/generate_embeddings.py --model_path path_to_finetuned_model --data_path data/processed_llm/train_small.csv --model_name name_of_model
+    ```
+    ```
+    python src/models/generate_embeddings.py --model_path path_to_finetuned_mode --data_path data/processed_llm/test.csv --model_name name_of_model
+    ```
+Where the name_of_model is the name of the specific model in the ```/src/models/config.yml``` file and path_to_finetuned_model is the path the finetuned model' weights are saved in. For example, to obtain bertweet-base embeddings run :
+    ```
+    python src/models/generate_embeddings.py --model_path models/finetuned-bertweet-base  --data_path data/processed_llm/train_small.csv --model_name models_bertweet_base
+    ```
+    ```
+    python src/models/generate_embeddings.py --model_path models/finetuned-bertweet-base --data_path data/processed_llm/test.csv --model_name models_bertweet_base
+    ```
+
+- To run the base-ensemble-nn fed with the embeddings of the base-models pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --method base-ensemble-nn
+    ```
+- To run the large-ensemble-nn fed with the embeddings of the large-models pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --method large-ensemble-nn
+    ```
+- To run the full-ensemble-nn fed with the embeddings of all the llm models pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --method full-ensemble-nn
+    ```
+### BERT-EFRI Training Pipeline 
+- To run the base-ensemble-random-forest fed with the embeddings of the base-models pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --method base-ensemble-random-forest
+    ```
+- To run the large-ensemble-random-forest fed with the embeddings of the large-models pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --method large-ensemble-random-forest
+    ```
+- To run the full-ensemble-random-forest fed with the embeddings of all the llm models pipeline run (from ```root``` folder of the project):
+    ```
+    python src/models/train.py --method full-ensemble-random-forest
+    ```
+
 
 ### Making Predictions:
 - Embedding (BoW, GloVe) + Classifiers Pipeline (from ```root``` folder of the project):
@@ -166,10 +225,21 @@ python src/models/predict.py --data data/processed/test.csv --method CNN-LSTM
 ```
 python src/models/predict.py --data data/processed/test.csv --method LSTM-CNN
 ```
-- LLM:
+- LLM (from ```root``` folder of the project):
 ```
-//TODO
+python src/models/predict.py --data data/processed_llm/test.csv --method twitter-roberta-base-sentiment-latest
 ```
+```
+python src/models/predict.py --data data/processed_llm/test.csv --method lora-roberta-large-sentiment-latest
+```
+```
+python src/models/predict.py --data data/processed_llm/test.csv --method bertweet-base
+```
+```
+python src/models/predict.py --data data/processed_llm/test.csv --method lora-bertweet-large
+```
+- ENSEMBLES & BERT-EFRI :
+The training pipeline of each configuration compute the predictions and save them in the ```root``` folder as predictions.csv
 
 
 ## 4. Project Results
@@ -213,16 +283,31 @@ The table below presents the test accuracies achieved by the selected baselines 
 
 - Large Language Models:
 
-    //TODO
+    | Model                     | Accuracy (\%) |
+    |---------------------------|---------------|
+    | RoBERTa-base              | 90.88         |
+    | RoBERTa-large             | 91.66         |
+    | BERTweet-base             | 91.20         |
+    | BERTweet-large            | 91.64         |
+
+- Ensembles:
+
+    | Model                     | Accuracy (\%) |
+    |---------------------------|---------------|
+    | Ensemble-base             | 91.60         |
+    | Ensemble-large            | 91.66         |
+    | Ensemble-base&large       | 90.60         |
 
 - Novel Solution:
 
-    //TODO
-
+    | Model                     | Accuracy (\%) |
+    |---------------------------|---------------|
+    | BERT-EFRI-base            | 91.64         |
+    | BERT-EFRI-large           | 91.84         |
+    | BERT-EFRI-base&large      | 91.14         |
 
 ## 5. Remarks
-//TODO
 
 - [scikit-learn](https://scikit-learn.org/stable/index.html) classifiers and [FastText](https://fasttext.cc/) classifier have been trained on the following CPU: Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
-- //TODO_ gpu specs for training of CNN, RNN and LLM
+- LLMs have been trained over NVIDIA GPUs with **minimum** 11GB VRAM, CUDA Version 12.6
 
