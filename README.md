@@ -127,7 +127,7 @@ make
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning False --save all
     ```
     Note: models are instantiated with the best hyper-parameters found through ```K-fold cross validation``` (```GridSearchCV```, k=5). You can set the ```--save``` flag to ```best``` to save only the best model (based on validation accuracy).
-- To run the BoW + Classifiers pipeline with hyper-parameterstuning through GirdSearchCV run (from ```root``` folder of the project):
+- To run the BoW + Classifiers pipeline with hyper-parameters tuning through GirdSearchCV run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed/train.csv --method classifiers --embedding BoW --hparams_tuning True 
     ```
