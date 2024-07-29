@@ -197,32 +197,27 @@ def predict_CNN(datapath):
     datapath : str
         Path to the test data.
     """
-    # 1 - get the path to the tokenizer and model weights
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    model_dir = os.path.join(current_dir)
-    tokenizer_path = os.path.join(model_dir, 'tokenizer.pickle')
-    model_path = os.path.join(model_dir, 'best_CNN_model.pt')
-    # 2 - load data
+    # 1 - load data
     logger.info('Loading data...')
     test_df = pd.read_csv(datapath)
-    # 3 - tokenize and pad sequences
+    # 2 - tokenize and pad sequences
     logger.info('Preprocessing data...')
-    with open(tokenizer_path, 'rb') as handle:
+    with open('models/CNN/tokenizer.pickle', 'rb') as handle:
         tokenizer = pickle.load(handle)
     sequence_test = tokenizer.texts_to_sequences(test_df['tweet'])
     word2vec = tokenizer.word_index
     V = len(word2vec)
     data_test = pad_sequences(sequence_test, maxlen=66)
-    # 4 - convert data to pytorch tensor type
+    # 3 - convert data to pytorch tensor type
     X_test = torch.tensor(data_test, dtype=torch.long)
-    # 5 - create dataloader for test data
+    # 4 - create dataloader for test data
     test_loader = DataLoader(TensorDataset(X_test), batch_size=32, shuffle=False)
-    # 6 - load previously trained model from file 'cnn_model.py'
+    # 5 - load previously trained model from file 'cnn_model.py'
     logger.info('Loading model...')
     model = CNN(vocab_size=V+1, embed_dim=20)
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load('models/CNN/model.pt'))
     model.eval()
-    # 7 - make predictions
+    # 6 - make predictions
     logger.info('Making predictions...')
     predictions = []
     for inputs in test_loader:
@@ -231,10 +226,10 @@ def predict_CNN(datapath):
             sigmoid_outputs = torch.sigmoid(outputs)
             binary_predictions = torch.where(sigmoid_outputs > 0.5, torch.tensor(1), torch.tensor(-1))
             predictions.extend(binary_predictions.cpu().numpy().tolist())
-    # 8 - convert predictions into final output
+    # 7 - convert predictions into final output
     flat_predictions = [item for sublist in predictions for item in sublist]
     output_df = pd.DataFrame({'id': test_df['id'], 'prediction': flat_predictions})
-    # 9 - save file
+    # 8 - save file
     output_df.to_csv('CNN_predictions.csv', index=False)
     logger.info('Predictions saved to CNN_predictions.csv')
 
@@ -249,32 +244,27 @@ def predict_CNN_LSTM(datapath):
     datapath : str
         Path to the test data.
     """
-    # 1 - get the path to the tokenizer and model weights
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    model_dir = os.path.join(current_dir)
-    tokenizer_path = os.path.join(model_dir, 'tokenizer.pickle')
-    model_path = os.path.join(model_dir, 'best_CNN_LSTM_model.pt')
-    # 2 - load data
+    # 1 - load data
     logger.info('Loading data...')
     test_df = pd.read_csv(datapath)
-    # 3 - tokenize and pad sequences
+    # 2 - tokenize and pad sequences
     logger.info('Preprocessing data...')
-    with open(tokenizer_path, 'rb') as handle:
+    with open('models/CNN_LSTM/tokenizer.pickle', 'rb') as handle:
         tokenizer = pickle.load(handle)
     sequence_test = tokenizer.texts_to_sequences(test_df['tweet'])
     word2vec = tokenizer.word_index
     V = len(word2vec)
     data_test = pad_sequences(sequence_test, maxlen=66)
-    # 4 - convert data to pytorch tensor type
+    # 3 - convert data to pytorch tensor type
     X_test = torch.tensor(data_test, dtype=torch.long)
-    # 5 - create dataloader for test data
+    # 4 - create dataloader for test data
     test_loader = DataLoader(TensorDataset(X_test), batch_size=32, shuffle=False)
-    # 6 - load previously trained model from file 'cnn_lstm_model.py'
+    # 5 - load previously trained model from file 'cnn_lstm_model.py'
     logger.info('Loading model...')
     model = CNN_LSTM(vocab_size=V+1, embed_dim=20, lstm_hidden_dim=128, num_classes=1)
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load('models/CNN_LSTM/model.pt'))
     model.eval()
-    # 7 - make predictions
+    # 6 - make predictions
     logger.info('Making predictions...')
     predictions = []
     for inputs in test_loader:
@@ -283,10 +273,10 @@ def predict_CNN_LSTM(datapath):
             sigmoid_outputs = torch.sigmoid(outputs)
             binary_predictions = torch.where(sigmoid_outputs > 0.5, torch.tensor(1), torch.tensor(-1))
             predictions.extend(binary_predictions.cpu().numpy().tolist())
-    # 8 - convert predictions into final output
+    # 7 - convert predictions into final output
     flat_predictions = [item for sublist in predictions for item in sublist]
     output_df = pd.DataFrame({'id': test_df['id'], 'prediction': flat_predictions})
-    # 9 - save file
+    # 8 - save file
     output_df.to_csv('CNN_LSTM_predictions.csv', index=False)
     logger.info('Predictions saved to CNN_LSTM_predictions.csv')
 
@@ -299,32 +289,27 @@ def predict_LSTM_CNN(datapath):
     datapath : str
         Path to the test data.
     """
-    # 1 - get the path to the tokenizer and model weights
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    model_dir = os.path.join(current_dir)
-    tokenizer_path = os.path.join(model_dir, 'tokenizer.pickle')
-    model_path = os.path.join(model_dir, 'best_LSTM_CNN_model.pt')
-    # 2 - load data
+    # 1 - load data
     logger.info('Loading data...')
     test_df = pd.read_csv(datapath)
-    # 3 - tokenize and pad sequences
+    # 2 - tokenize and pad sequences
     logger.info('Preprocessing data...')
-    with open(tokenizer_path, 'rb') as handle:
+    with open('models/LSTM_CNN/tokenizer.pickle', 'rb') as handle:
         tokenizer = pickle.load(handle)
     sequence_test = tokenizer.texts_to_sequences(test_df['tweet'])
     word2vec = tokenizer.word_index
     V = len(word2vec)
     data_test = pad_sequences(sequence_test, maxlen=66)
-    # 4 - convert data to pytorch tensor type
+    # 3 - convert data to pytorch tensor type
     X_test = torch.tensor(data_test, dtype=torch.long)
-    # 5 - create dataloader for test data
+    # 4 - create dataloader for test data
     test_loader = DataLoader(TensorDataset(X_test), batch_size=32, shuffle=False)
-    # 6 - load previously trained model from file 'lstm_cnn_model.py'
+    # 5 - load previously trained model from file 'lstm_cnn_model.py'
     logger.info('Loading model...')
     model = LSTM_CNN(vocab_size=V+1, embed_dim=20, lstm_hidden_dim=128, num_classes=1)
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load('models/LSTM_CNN/model.pt'))
     model.eval()
-    # 7 - make predictions
+    # 6 - make predictions
     logger.info('Making predictions...')
     predictions = []
     for inputs in test_loader:
@@ -333,10 +318,10 @@ def predict_LSTM_CNN(datapath):
             sigmoid_outputs = torch.sigmoid(outputs)
             binary_predictions = torch.where(sigmoid_outputs > 0.5, torch.tensor(1), torch.tensor(-1))
             predictions.extend(binary_predictions.cpu().numpy().tolist())
-    # 8 - convert predictions into final output
+    # 7 - convert predictions into final output
     flat_predictions = [item for sublist in predictions for item in sublist]
     output_df = pd.DataFrame({'id': test_df['id'], 'prediction': flat_predictions})
-    # 9 - save file
+    # 8 - save file
     output_df.to_csv('LSTM_CNN_predictions.csv', index=False)
     logger.info('Predictions saved to LSTM_CNN_predictions.csv')
 

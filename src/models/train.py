@@ -29,6 +29,9 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
+from utils import create_clean_directory
+import os 
+import pickle
 from cnn_model import CNN
 from cnn_lstm_model import CNN_LSTM
 from lstm_cnn_model import LSTM_CNN
@@ -389,6 +392,9 @@ def train_CNN(input_path):
     sequence_val = tokenizer.texts_to_sequences(X_val)
     word2vec = tokenizer.word_index
     V = len(word2vec)
+    create_clean_directory('models/CNN')
+    with open('models/CNN/tokenizer.pickle', 'wb') as handle:
+        pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
     data_train = pad_sequences(sequence_train)
     T = data_train.shape[1]
     data_val = pad_sequences(sequence_val, maxlen=T)
@@ -457,7 +463,7 @@ def train_CNN(input_path):
             best_val_loss = avg_val_loss
             epochs_no_impr = 0
             logger.info("Saving model...")
-            torch.save(model.state_dict(), 'best_CNN_model.pt')
+            torch.save(model.state_dict(), 'models/CNN/model.pt')
         else:
             epochs_no_impr += 1
             if epochs_no_impr >= wait:
@@ -492,6 +498,9 @@ def train_CNN_LSTM(input_path):
     sequence_val = tokenizer.texts_to_sequences(X_val)
     word2vec = tokenizer.word_index
     V = len(word2vec)
+    create_clean_directory('models/CNN_LSTM')
+    with open('models/CNN_LSTM/tokenizer.pickle', 'wb') as handle:
+        pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
     data_train = pad_sequences(sequence_train)
     T = data_train.shape[1]
     data_val = pad_sequences(sequence_val, maxlen=T)
@@ -560,7 +569,7 @@ def train_CNN_LSTM(input_path):
             best_val_loss = avg_val_loss
             epochs_no_impr = 0
             logger.info("Saving model...")
-            torch.save(model.state_dict(), 'best_CNN_LSTM_model.pt')
+            torch.save(model.state_dict(), 'models/CNN_LSTM/model.pt')
         else:
             epochs_no_impr += 1
             if epochs_no_impr >= wait:
@@ -594,6 +603,9 @@ def train_LSTM_CNN(input_path):
     sequence_val = tokenizer.texts_to_sequences(X_val)
     word2vec = tokenizer.word_index
     V = len(word2vec)
+    create_clean_directory('models/LSTM_CNN')
+    with open('models/LSTM_CNN/tokenizer.pickle', 'wb') as handle:
+        pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
     data_train = pad_sequences(sequence_train)
     T = data_train.shape[1]
     data_val = pad_sequences(sequence_val, maxlen=T)
@@ -662,7 +674,7 @@ def train_LSTM_CNN(input_path):
             best_val_loss = avg_val_loss
             epochs_no_impr = 0
             logger.info("Saving model...")
-            torch.save(model.state_dict(), 'best_LSTM_CNN_model.pt')
+            torch.save(model.state_dict(), 'models/LSTM_CNN/model.pt')
         else:
             epochs_no_impr += 1
             if epochs_no_impr >= wait:
