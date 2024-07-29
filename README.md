@@ -175,6 +175,11 @@ The final best model will be saved in the ```models``` folder of the ```root``` 
     ```
 
 ### LLM Training Pipeline
+Before deploying the training pipeline, please generate the processed datasets (small and full) setting the option ```train_dataset_type : "full" ``` or ```train_dataset_type : "small"``` in ```src/data/config.yml``` running the command (from ```root``` folder of the project):
+```
+python src/data/preprocess_data.py
+```
+Rename and move each dataset respectively as ```train_small.csv```, ```train_full.csv``` and ```test.csv``` in ```data/processed_llm```.
 - To run the twitter-roberta-base-sentiment-latest pipeline run (from ```root``` folder of the project):
     ```
     python src/models/train.py --input data/processed_llm/train_full.csv --method twitter-roberta-base-sentiment-latest
