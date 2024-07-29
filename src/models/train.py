@@ -457,7 +457,7 @@ def train_CNN(input_path):
             best_val_loss = avg_val_loss
             epochs_no_impr = 0
             logger.info("Saving model...")
-            torch.save(model.state_dict(), 'best_new_CNN_model.pt')
+            torch.save(model.state_dict(), 'best_CNN_model.pt')
         else:
             epochs_no_impr += 1
             if epochs_no_impr >= wait:
@@ -560,7 +560,7 @@ def train_CNN_LSTM(input_path):
             best_val_loss = avg_val_loss
             epochs_no_impr = 0
             logger.info("Saving model...")
-            torch.save(model.state_dict(), 'best_new_CNN_LSTM_model.pt')
+            torch.save(model.state_dict(), 'best_CNN_LSTM_model.pt')
         else:
             epochs_no_impr += 1
             if epochs_no_impr >= wait:
@@ -662,7 +662,7 @@ def train_LSTM_CNN(input_path):
             best_val_loss = avg_val_loss
             epochs_no_impr = 0
             logger.info("Saving model...")
-            torch.save(model.state_dict(), 'best_new_LSTM_CNN_model.pt')
+            torch.save(model.state_dict(), 'best_LSTM_CNN_model.pt')
         else:
             epochs_no_impr += 1
             if epochs_no_impr >= wait:
