@@ -5,7 +5,7 @@
 - Authors: Matteo Boglioni, Federica Bruni, Francesco Rita, Christopher Zanoli
 
 ## 1. Project Description
-The goal of the project is to classify if the sentiment of Twitter tweets is positive or negative.
+The goal of the project is to classify if the sentiment of Twitter tweets is positive or negative. You can find the project report [here](https://github.com/czanoli/ETH-Computational-Intelligence-Lab-2024/blob/main/reports/report.pdf)
 
 ## 2. Project Organization
 ```
